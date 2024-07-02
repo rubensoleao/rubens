@@ -50,8 +50,8 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
             name='date'
             onChange={ ()=> {if (formError) { setFormError(undefined)} }}// reset form error 
             className={clsx(
-              { 'border-red-400 focus:border-red-600 border-x-8': formError },
-              'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+              { 'border-red-400 focus:border-red-600 border-x-8 focus:ring-red-400': formError },
+              'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm focused-input'
             )}
             placeholder='MM/DD/YYYY'
             default='05/22/1992'
@@ -61,10 +61,7 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
           <Label className='text-sm/6 font-medium'>Title</Label>
           <Input
             name='title'
-            className={clsx(
-              'mt-3 block w-full rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6',
-              'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
-            )}
+            className={'mt-3 block w-full rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 focused-input'}
           />
         </Field>
 
@@ -72,10 +69,7 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
           <Label className='text-sm/6 font-medium '>Memory</Label>
           <Textarea
             name='description'
-            className={clsx(
-              'mt-3 block w-full resize-none rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 ',
-              'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
-            )}
+            className={ 'mt-3 block w-full resize-none rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 focused-input'}
             rows={3}
           />
         </Field>

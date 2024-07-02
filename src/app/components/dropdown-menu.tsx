@@ -17,7 +17,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ options, onSelect=()=>{} })
 
   return (
     <Menu as='div' className='relative inline-block text-left'>
-      <MenuButton className='inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500'>
+      <MenuButton className='inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focused-input'>
         {selectedOption || 'Sort'}
         <ChevronDownIcon className='h-4 w-4 size-4 fill-black/60' />
       </MenuButton>
