@@ -2,7 +2,7 @@ import { CubeIcon } from '@heroicons/react/20/solid'
 
 export default function NotFound() {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center h-screen ">
       <div className="text-center">
         <div className="flex items-center justify-center mb-8">
           <CubeIcon className="h-24 w-24 text-black-500" />

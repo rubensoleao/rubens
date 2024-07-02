@@ -8,7 +8,6 @@ import {
   Button,
 } from '@headlessui/react'
 import { Fragment, useState, useEffect } from 'react'
-import './root.css'
 import  DropdownMenu  from './../components/dropdown-menu'
 interface Memory {
   id: number
@@ -121,7 +120,7 @@ export default function Root() {
           <h1 className='text-2xl font-semibold text-gray-900'>
             Jae's memory lane
           </h1>
-          <Button className='inline-flex  justify-center rounded-md border border-gray-300 shadow-sm p-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500'>
+          <Button className='btn-primary'>
             <ShareIcon className='w-4 h-4 text-blue-600' />
           </Button>
         </div>
