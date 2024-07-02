@@ -5,27 +5,22 @@ import {
   DialogTitle,
   Transition,
 } from '@headlessui/react'
-import React, { FormEvent, Fragment, ReactNode } from 'react'
+import { XMarkIcon } from '@heroicons/react/20/solid'
 import clsx from 'clsx'
+import React, { Fragment, ReactNode } from 'react'
 
 interface CustomDialogProps {
   isOpen: boolean
   title: string
-  onSubmit?: (e: FormEvent<HTMLFormElement>) => void
   onClose: () => void
   children: ReactNode
-  submitText?: string
-  cancelText?: string
 }
 
 const CustomDialog: React.FC<CustomDialogProps> = ({
   isOpen,
   title,
   children,
-  onSubmit,
   onClose,
-  submitText = 'Submit',
-  cancelText = 'Cancel',
 }) => {
   return (
     <div>
@@ -57,25 +52,20 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
               transition
               className='w-full sm:max-w-md border shadow-md rounded-xl bg-white p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0'
             >
+              <Button
+                className=' border-none btn-primary relative float-right'
+                onClick={() => onClose()}
+              >
+                <XMarkIcon className='w-4 h-4'></XMarkIcon>
+              </Button>
+
               <DialogTitle
                 as='h3'
                 className='text-base/7 font-medium text-black'
               >
                 {title}
               </DialogTitle>
-              <form onSubmit={onSubmit} className='mt-4'>
-                {children}
-                <div className='mt-4 flex justify-end gap-2'>
-                  <Button className='btn-primary' onClick={() => onClose()}>
-                    {cancelText}
-                  </Button>
-                  {onSubmit && (
-                    <Button type='submit' className='btn-primary'>
-                      {submitText}
-                    </Button>
-                  )}
-                </div>
-              </form>
+              {children}
             </DialogPanel>
           </div>
         </div>

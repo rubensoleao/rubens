@@ -1,11 +1,10 @@
-import { Button, Input, Field, Label, Textarea } from '@headlessui/react'
+import { Button } from '@headlessui/react'
 import { CubeIcon, ShareIcon } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
-import DropdownMenu from './../components/dropdown-menu'
 import CustomDialog from '../components/custom-dialog'
-import clsx from 'clsx'
-
-interface Memory {
+import MemoryForm from '../forms/memory-form'
+import DropdownMenu from './../components/dropdown-menu'
+export interface Memory {
   id: number
   title: string
   date: string
@@ -179,53 +178,8 @@ export default function Root() {
         onClose={() => {
           setIsOpen(false)
         }}
-        onSubmit={
-          (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.currentTarget);
-            const title = formData.get('title') as string;
-            const description = formData.get('description') as string;
-        
-            console.log(title, description);
-        
-            const newDB = db;
-            newDB.memories.unshift({
-              id: 3,
-              title,
-              date: 'May 30, 1999',
-              description,
-              img: 'https://picsum.photos/seed/1235/400',
-            } );
-        
-            setDB(newDB);
-            setIsOpen(false)
-       
-          }
-        }>
-        <div className='flex flex-col space-y-2'>
-          <Field as='div'>
-            <Label className='text-sm/6 font-medium'>Title</Label>
-            <Input
-              name="title"
-              className={clsx(
-                'mt-3 block w-full rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6',
-                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
-              )}
-            />
-          </Field>
-          <Field as='div'>
-            <Label className='text-sm/6 font-medium '>Memory</Label>
-            <Textarea
-              name="description"
-              className={clsx(
-                'mt-3 block w-full resize-none rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 ',
-                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
-              )}
-              rows={3}
-            />
-          </Field>
-        </div>
+      >
+        <MemoryForm onSubmit={()=>{setIsOpen(false)}} />
       </CustomDialog>
     </div>
   )
