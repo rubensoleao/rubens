@@ -1,14 +1,10 @@
-import { CubeIcon, ChevronDownIcon, ShareIcon } from '@heroicons/react/20/solid'
-import {
-  Menu,
-  Transition,
-  MenuButton,
-  MenuItems,
-  MenuItem,
-  Button,
-} from '@headlessui/react'
-import { Fragment, useState, useEffect } from 'react'
-import  DropdownMenu  from './../components/dropdown-menu'
+import { Button, Input, Field, Label, Textarea } from '@headlessui/react'
+import { CubeIcon, ShareIcon } from '@heroicons/react/20/solid'
+import { useEffect, useState } from 'react'
+import DropdownMenu from './../components/dropdown-menu'
+import CustomDialog from '../components/custom-dialog'
+import clsx from 'clsx'
+
 interface Memory {
   id: number
   title: string
@@ -107,11 +103,14 @@ export default function Root() {
     }
   }, [isLoadingPage, currentPage])
 
+  // Dialog 01
+  let [isOpen, setIsOpen] = useState(false)
+
   return (
     <div className=' min-h-screen'>
       <div className='max-w-3xl mx-auto p-4 h-screen'>
         <div className='flex items-center justify-center lg:fixed lg:top-4 lg:left-4 md:sticky md:top-0 md:z-10 '>
-          <CubeIcon className='h-6 w-6 text-blue-500' />
+          <CubeIcon className='h-6 w-6 text-black' />
           <p className='text-lg font-semibold text-gray-900 ml-2'>
             Memory Lane
           </p>
@@ -135,7 +134,12 @@ export default function Root() {
           </p>
         </div>
         <div className='flex justify-between items-center mb-4'>
-          <Button className='inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500'>
+          <Button
+            className='btn-primary'
+            onClick={() => {
+              setIsOpen(true)
+            }}
+          >
             + New memory
           </Button>
           <DropdownMenu options={['Older to new', 'New to older']} />
@@ -169,6 +173,60 @@ export default function Root() {
           <span className='absolute bottom-[-20px] pt-4 '>{'\u00A0'}</span>
         )
       }
+      <CustomDialog
+        isOpen={isOpen}
+        title={'Log your memory'}
+        onClose={() => {
+          setIsOpen(false)
+        }}
+        onSubmit={
+          (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.currentTarget);
+            const title = formData.get('title') as string;
+            const description = formData.get('description') as string;
+        
+            console.log(title, description);
+        
+            const newDB = db;
+            newDB.memories.unshift({
+              id: 3,
+              title,
+              date: 'May 30, 1999',
+              description,
+              img: 'https://picsum.photos/seed/1235/400',
+            } );
+        
+            setDB(newDB);
+            setIsOpen(false)
+       
+          }
+        }>
+        <div className='flex flex-col space-y-2'>
+          <Field as='div'>
+            <Label className='text-sm/6 font-medium'>Title</Label>
+            <Input
+              name="title"
+              className={clsx(
+                'mt-3 block w-full rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6',
+                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
+              )}
+            />
+          </Field>
+          <Field as='div'>
+            <Label className='text-sm/6 font-medium '>Memory</Label>
+            <Textarea
+              name="description"
+              className={clsx(
+                'mt-3 block w-full resize-none rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 ',
+                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
+              )}
+              rows={3}
+            />
+          </Field>
+        </div>
+      </CustomDialog>
     </div>
   )
 }
