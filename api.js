@@ -5,6 +5,8 @@ const app = express()
 const port = 4001
 const db = new sqlite3.Database('memories.db')
 
+const { validateParamId } = require('./api.validators.ts')
+
 app.use(express.json())
 
 db.serialize(() => {
@@ -50,7 +52,7 @@ app.post('/memories', (req, res) => {
   })
 })
 
-app.get('/memories/:id', (req, res) => {
+app.get('/memories/:id', validateParamId, (req, res) => {
   const { id } = req.params
   db.get('SELECT * FROM memories WHERE id = ?', [id], (err, row) => {
     if (err) {
