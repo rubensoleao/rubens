@@ -1,6 +1,6 @@
 import { Button } from '@headlessui/react'
 import { CubeIcon, ShareIcon } from '@heroicons/react/20/solid'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
 import DropdownMenu from './../components/dropdown-menu'
@@ -14,19 +14,22 @@ export interface Memory {
 }
 
 interface MemoryCardProps {
+  id: number
   title: string
   date: string
   description: string
   img: string
 }
 
-function MemoryCard({ title, date, description, img }: MemoryCardProps) {
+function MemoryCard({ id, title, date, description, img }: MemoryCardProps) {
   return (
     <div className='bg-white shadow rounded-lg p-4  mb-4  '>
       <div className='flex items-center'>
         <img src={img} alt='Cactus' className='h-20 w-20 rounded-full' />
         <div className='ml-4'>
-          <h2 className='text-xl font-bold'>{title}</h2>
+          <h2 className='text-xl font-bold'>
+            {title} {id}
+          </h2>
           <p className='text-gray-500'>{date}</p>
           <p className='mt-2 text-gray-700'>{description}</p>
         </div>
@@ -36,25 +39,24 @@ function MemoryCard({ title, date, description, img }: MemoryCardProps) {
 }
 
 export default function Root() {
-  const [memories, setMemories] = useState<Memory[] | undefined >(undefined)
+  const [memoriesList, setMemoriesList] = useState<Memory[] | undefined>(
+    undefined
+  )
 
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false)
+  const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [maxNumPages, setMaxNumPages] = useState<number>(10)
 
   const getNextPage = () => {
-    if (isLoadingPage || currentPage >= maxNumPages) {
+    if (
+      isLoadingPage || //avoids more than one request
+      currentPage >= maxNumPages
+    ) {
       return
     }
     setIsLoadingPage(true)
-    setTimeout(() => {
-      //FIXME: DBMOCK
-      // const newDB = { ...db }
-      newDB.memories.push(...newDB.memories.slice(0, 3))
-      // setDB(newDB)
-      setCurrentPage(currentPage + 1)
-      setIsLoadingPage(false)
-    }, 1000)
+    getMemories(currentPage + 1)
+    setIsLoadingPage(false)
   }
 
   const handleScroll = (e: any) => {
@@ -64,34 +66,44 @@ export default function Root() {
     if (
       currentHeight + 20 >= scrollHeight &&
       !isLoadingPage &&
+      memoriesList != undefined &&
       currentPage < maxNumPages
     ) {
       getNextPage()
     }
   }
 
-
-  useEffect(() => {
-    // Intialize first 
-    if (memories=== undefined){
-      setIsLoadingPage(true)
-      fetchMemories().then(({memories, page, totalPages}) =>{
-        setMemories(memories)
+  const getMemories = (page: number) => {
+    fetchMemories(page)
+      .then(({ memories, page, totalPages }) => {
+        const newMemories = memoriesList
+          ? [...memoriesList, ...memories]
+          : memories
+        console.log('BEW', newMemories)
+        setMemoriesList(newMemories)
         setCurrentPage(page)
         setMaxNumPages(totalPages)
-      }).catch((err)=>{
+      })
+      .catch((err) => {
         console.error(err)
       })
-      setIsLoadingPage(false)
-    }
-  
+  }
+
+  useEffect(() => {
     // Handle infite scrol
     window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [isLoadingPage, currentPage])
+  }, [memoriesList, currentPage])
 
+  useEffect(() => {
+    if (memoriesList === undefined) {
+      setIsLoadingPage(true)
+      getMemories(1)
+      setIsLoadingPage(false)
+    }
+  }, [currentPage, memoriesList])
 
   // Dialog 01
   const [isOpen, setIsOpen] = useState(false)
@@ -135,9 +147,10 @@ export default function Root() {
           <DropdownMenu options={['Older to new', 'New to older']} />
         </div>
         <div>
-          {memories?.map((memory) => (
+          {memoriesList?.map((memory) => (
             <MemoryCard
               key={memory.id}
+              id={memory.id}
               title={memory.title}
               date={memory.date}
               description={memory.description}
@@ -170,7 +183,11 @@ export default function Root() {
           setIsOpen(false)
         }}
       >
-        <MemoryForm onSubmit={()=>{setIsOpen(false)}} />
+        <MemoryForm
+          onSubmit={() => {
+            setIsOpen(false)
+          }}
+        />
       </CustomDialog>
     </div>
   )
