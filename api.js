@@ -1,8 +1,8 @@
-import express from 'express'
-import sqlite3 from 'sqlite3'
 import cors from 'cors'
+import express from 'express'
 import multer from 'multer'
 import path from 'path'
+import sqlite3 from 'sqlite3'
 import { fileURLToPath } from 'url'
 
 const app = express()
@@ -149,6 +149,73 @@ app.delete('/memories/:id', (req, res) => {
     }
     res.json({ message: 'Memory deleted successfully' })
   })
+})
+
+// Add user table
+db.serialize(() => {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS user (
+      id INTEGER PRIMARY KEY,
+      name TEXT,
+      description TEXT
+    )
+  `)
+})
+
+// USER
+// GET /user
+app.get('/user', (req, res) => {
+  db.get('SELECT * FROM user WHERE id = 1', (err, row) => {
+    if (err) {
+      res.status(500).json({ error: err.message })
+      return
+    }
+    res.json({ user: row })
+  })
+})
+
+// POST /user
+app.post('/user', (req, res) => {
+  const { name, description } = req.body
+
+  if (!name || !description) {
+    res.status(400).json({ error: 'Please provide both name and description' })
+    return
+  }
+
+  db.run(
+    'INSERT INTO user (id, name, description) VALUES (1, ?, ?)',
+    [name, description],
+    (err) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+        return
+      }
+      res.status(201).json({ message: 'User created successfully' })
+    }
+  )
+})
+
+// PUT /user
+app.put('/user', (req, res) => {
+  const { name, description } = req.body
+
+  if (!name || !description) {
+    res.status(400).json({ error: 'Please provide both name and description' })
+    return
+  }
+
+  db.run(
+    'UPDATE user SET name = ?, description = ? WHERE id = 1',
+    [name, description],
+    (err) => {
+      if (err) {
+        res.status(500).json({ error: err.message })
+        return
+      }
+      res.json({ message: 'User updated successfully' })
+    }
+  )
 })
 
 // Serve static files from the "uploads" directory

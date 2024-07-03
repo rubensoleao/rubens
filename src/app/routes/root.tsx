@@ -1,9 +1,11 @@
 import { Button } from '@headlessui/react'
-import { CubeIcon, ShareIcon } from '@heroicons/react/20/solid'
-import { useEffect, useState, useCallback } from 'react'
+
+import { CubeIcon, PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
+import { useCallback, useEffect, useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
-import { fetchMemories } from '../lib/api-client'
+import UserEditForm from '../forms/user-edit-form'
+import { fetchMemories, fetchUser } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
 
 export interface Memory {
@@ -50,6 +52,9 @@ export default function Root() {
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [maxNumPages, setMaxNumPages] = useState<number>(10)
   const [queryOrdering, setQueryOrdering] = useState<string>('asc')
+  const [userName, setUserName] = useState<string>('')
+  const [userDescription, setUserDescription] = useState<string>('')
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState<boolean>(false)
 
   const getMemories = useCallback(
     (page: number) => {
@@ -106,6 +111,22 @@ export default function Root() {
     }
   }, [queryOrdering, getMemories, memoriesList])
 
+  useEffect(() => {
+    fetchUser()
+      .then((user) => {
+        if (user) {
+          setUserName(user.name)
+          setUserDescription(user.description)
+        } else {
+          setIsUserDialogOpen(true)
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        setIsUserDialogOpen(true)
+      })
+  }, [])
+
   // Create Memory Dialog
   const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] =
     useState(false)
@@ -123,6 +144,18 @@ export default function Root() {
     getMemories(1)
   }
 
+  const handleUserSubmit = () => {
+    setIsUserDialogOpen(false)
+    fetchUser()
+      .then((user) => {
+        setUserName(user.name)
+        setUserDescription(user.description)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }
+
   return (
     <div className='min-h-screen'>
       <div className='max-w-3xl mx-auto p-4 h-screen'>
@@ -134,20 +167,23 @@ export default function Root() {
         </div>
         <div className='flex items-center justify-between pt-2 mb-4'>
           <h1 className='text-2xl font-semibold text-gray-900'>
-            Jae's memory lane
+            {userName ? `${userName}'s Memory Lane` : 'Memory Lane'}
           </h1>
-          <Button className='btn-primary'>
-            <ShareIcon className='w-4 h-4 text-blue-600' />
-          </Button>
+          <div>
+            <Button
+              className='btn-primary mt-4 mr-2'
+              onClick={() => setIsUserDialogOpen(true)}
+            >
+              <PencilIcon className='w-4 h-4' />
+            </Button>
+            <Button className='btn-primary'>
+              <ShareIcon className='w-4 h-4' />
+            </Button>
+          </div>
         </div>
-        <div>
+        <div className='break-words'>
           <p className='text-gray-700 mb-8'>
-            Jae Doe's journey has been a tapestry of curiosity and exploration.
-            From a young age, their inquisitive mind led them through diverse
-            interests. Education shaped their multidisciplinary perspective,
-            while personal experiences added depth and resilience to their
-            story. Embracing challenges and cherishing relationships, Jae
-            continues to craft a unique and inspiring life history.
+            {userDescription || 'User description goes here.'}
           </p>
         </div>
         <div className='flex justify-between items-center mb-4'>
@@ -193,6 +229,15 @@ export default function Root() {
         onClose={() => setCreateMemoryDialogIsOpen(false)}
       >
         <MemoryForm onSubmit={handleMemorySubmit} />
+      </CustomDialog>
+      <CustomDialog
+        isOpen={isUserDialogOpen}
+        title={'Profile' }
+        onClose={() => {
+          setIsUserDialogOpen(false)
+        }}
+      >
+        <UserEditForm onSubmit={handleUserSubmit} />
       </CustomDialog>
     </div>
   )
