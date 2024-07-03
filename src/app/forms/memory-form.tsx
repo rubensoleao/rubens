@@ -3,8 +3,9 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 import InputMask from 'react-input-mask'
 import { Memory } from './../routes/root'
-import { parse, isValid } from 'date-fns'
+import { parse, isValid, format } from 'date-fns'
 import FileUploadInput from '../components/file-upload-input'
+import { createMemory } from '../lib/api-client'
 
 interface MemoryFormProps {
   defaultValue?: Memory
@@ -22,12 +23,16 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const date = formData.get('date') as string
-    const nDate = parse(date, 'MM/dd/yyyy', new Date())
 
     if (!validateDate(date)) {
       setFormError('Invalid Date')
       return
     }
+
+    createMemory(title, description, date).catch((err) => {
+      console.error(err)
+      return
+    })
 
     if (onSubmit) {
       onSubmit()
@@ -50,7 +55,7 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
           </Label>
           <InputMask
             mask='99/99/9999'
-            defaultValue={'22/05/1992'}
+            defaultValue={format(new Date(), 'MM/dd/yyyy')}
             name='date'
             onChange={() => {
               if (formError) {

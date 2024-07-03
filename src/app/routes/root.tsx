@@ -14,21 +14,20 @@ export interface Memory {
 }
 
 interface MemoryCardProps {
-  id: number
   title: string
   date: string
   description: string
   img: string
 }
 
-function MemoryCard({ id, title, date, description, img }: MemoryCardProps) {
+function MemoryCard({ title, date, description, img }: MemoryCardProps) {
   return (
     <div className='bg-white shadow rounded-lg p-4  mb-4  '>
       <div className='flex items-center'>
         <img src={img} alt='Cactus' className='h-20 w-20 rounded-full' />
         <div className='ml-4'>
           <h2 className='text-xl font-bold'>
-            {title} {id}
+            {title}
           </h2>
           <p className='text-gray-500'>{date}</p>
           <p className='mt-2 text-gray-700'>{description}</p>
@@ -150,7 +149,6 @@ export default function Root() {
           {memoriesList?.map((memory) => (
             <MemoryCard
               key={memory.id}
-              id={memory.id}
               title={memory.title}
               date={memory.date}
               description={memory.description}

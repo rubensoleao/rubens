@@ -58,9 +58,9 @@ export const fetchMemory = async (id: number): Promise<GetMemoryResponse> => {
 };
 
 // POST /memories
-export const createMemory = async (name: string, description: string, timestamp: string): Promise<CreateMemoryResponse> => {
+export const createMemory = async (title: string, description: string, timestamp: string): Promise<CreateMemoryResponse> => {
   const response = await apiClient.post<CreateMemoryResponse>('/memories', {
-    name,
+    title,
     description,
     timestamp,
   });
@@ -68,9 +68,9 @@ export const createMemory = async (name: string, description: string, timestamp:
 };
 
 // PUT /memories/:id
-export const updateMemory = async (id: number, name: string, description: string, timestamp: string): Promise<UpdateMemoryResponse> => {
+export const updateMemory = async (id: number, title: string, description: string, timestamp: string): Promise<UpdateMemoryResponse> => {
   const response = await apiClient.put<UpdateMemoryResponse>(`/memories/${id}`, {
-    name,
+    title,
     description,
     timestamp,
   });
