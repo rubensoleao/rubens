@@ -1,11 +1,11 @@
-const express = require('express')
-const sqlite3 = require('sqlite3')
+import express from 'express'
+import sqlite3 from 'sqlite3'
 
 const app = express()
 const port = 4001
 const db = new sqlite3.Database('memories.db')
 
-const { validateParamId } = require('./api.validators.ts')
+import { validateParamId } from './api.validators.js'
 
 app.use(express.json())
 
@@ -21,14 +21,38 @@ db.serialize(() => {
 })
 
 app.get('/memories', (req, res) => {
-  db.all('SELECT * FROM memories', (err, rows) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  const totalCountQuery = 'SELECT COUNT(*) AS count FROM memories';
+  const paginatedQuery = `SELECT * FROM memories LIMIT ? OFFSET ?`;
+
+  db.get(totalCountQuery, (err, row) => {
     if (err) {
-      res.status(500).json({ error: err.message })
-      return
+      res.status(500).json({ error: err.message });
+      return;
     }
-    res.json({ memories: rows })
-  })
-})
+
+    const totalCount = row.count;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    db.all(paginatedQuery, [limit, offset], (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+
+      res.json({
+        memories: rows,
+        page,
+        limit,
+        totalPages,
+        totalCount
+      });
+    });
+  });
+});
 
 app.post('/memories', (req, res) => {
   const { name, description, timestamp } = req.body
