@@ -13,7 +13,7 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS memories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
+      title TEXT,
       description TEXT,
       timestamp DATE
     )
@@ -21,53 +21,56 @@ db.serialize(() => {
 })
 
 app.get('/memories', (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = (page - 1) * limit;
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 10
+  const offset = (page - 1) * limit
 
-  const totalCountQuery = 'SELECT COUNT(*) AS count FROM memories';
-  const paginatedQuery = `SELECT * FROM memories LIMIT ? OFFSET ?`;
+  const totalCountQuery = 'SELECT COUNT(*) AS count FROM memories'
+  const paginatedQuery = `SELECT * FROM memories LIMIT ? OFFSET ?`
 
   db.get(totalCountQuery, (err, row) => {
     if (err) {
-      res.status(500).json({ error: err.message });
-      return;
+      res.status(500).json({ error: err.message })
+      return
     }
 
-    const totalCount = row.count;
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalCount = row.count
+    const totalPages = Math.ceil(totalCount / limit)
 
     db.all(paginatedQuery, [limit, offset], (err, rows) => {
       if (err) {
-        res.status(500).json({ error: err.message });
-        return;
+        res.status(500).json({ error: err.message })
+        return
       }
 
       res.json({
-        memories: rows,
+        memories: rows.map((row) => {
+          row.img = `https://picsum.photos/seed/${row.id}/400`
+          return row
+        }), //add picture later remove map
         page,
         limit,
         totalPages,
-        totalCount
-      });
-    });
-  });
-});
+        totalCount,
+      })
+    })
+  })
+})
 
 app.post('/memories', (req, res) => {
-  const { name, description, timestamp } = req.body
+  const { title, description, timestamp } = req.body
 
-  if (!name || !description || !timestamp) {
+  if (!title || !description || !timestamp) {
     res.status(400).json({
-      error: 'Please provide all fields: name, description, timestamp',
+      error: 'Please provide all fields: title, description, timestamp',
     })
     return
   }
 
   const stmt = db.prepare(
-    'INSERT INTO memories (name, description, timestamp) VALUES (?, ?, ?)'
+    'INSERT INTO memories (title, description, timestamp) VALUES (?, ?, ?)'
   )
-  stmt.run(name, description, timestamp, (err) => {
+  stmt.run(title, description, timestamp, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
@@ -93,19 +96,19 @@ app.get('/memories/:id', validateParamId, (req, res) => {
 
 app.put('/memories/:id', (req, res) => {
   const { id } = req.params
-  const { name, description, timestamp } = req.body
+  const { title, description, timestamp } = req.body
 
-  if (!name || !description || !timestamp) {
+  if (!title || !description || !timestamp) {
     res.status(400).json({
-      error: 'Please provide all fields: name, description, timestamp',
+      error: 'Please provide all fields: title, description, timestamp',
     })
     return
   }
 
   const stmt = db.prepare(
-    'UPDATE memories SET name = ?, description = ?, timestamp = ? WHERE id = ?'
+    'UPDATE memories SET title = ?, description = ?, timestamp = ? WHERE id = ?'
   )
-  stmt.run(name, description, timestamp, id, (err) => {
+  stmt.run(title, description, timestamp, id, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
