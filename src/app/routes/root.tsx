@@ -11,7 +11,7 @@ export interface Memory {
   title: string
   date: string
   description: string
-  imageUrl: string 
+  imageUrl: string
 }
 
 interface MemoryCardProps {
@@ -25,9 +25,15 @@ function MemoryCard({ title, date, description, imageUrl }: MemoryCardProps) {
   console.log()
   return (
     <div className='bg-white shadow rounded-lg p-4 mb-4'>
-      <div className='flex items-center'>
-        <img src={'http://127.0.0.1:4001'+imageUrl} alt='Memory' className='h-20 w-20 rounded-full' />
-        <div className='ml-4'>
+      <div className='flex  '>
+        <div className='h-[150px] w-[150px] rounded-lg 4 overflow-hidden  '>
+          <img
+            src={'http://127.0.0.1:4001' + imageUrl}
+            alt='Memory'
+            className='h-full w-full object-cover '
+          />
+        </div>
+        <div className=' ml-4 '>
           <h2 className='text-xl font-bold'>{title}</h2>
           <p className='text-gray-500'>{date}</p>
           <p className='mt-2 text-gray-700'>{description}</p>
