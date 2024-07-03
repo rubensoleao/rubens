@@ -3,9 +3,10 @@ import axios, { AxiosInstance } from 'axios';
 // Define the types for the responses
 interface Memory {
   id: number;
-  name: string;
+  img: string;
+  title: string;
   description: string;
-  timestamp: string;
+  date: string;
 }
 
 interface GetMemoriesResponse {
@@ -35,13 +36,15 @@ interface DeleteMemoryResponse {
 // Axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: 'http://localhost:4001',
+  withCredentials: false,
   headers: {
     'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin':'*',
   },
 });
 
 // GET /memories
-export const fetchMemories = async (page: number = 1, limit: number = 10): Promise<GetMemoriesResponse> => {
+export const fetchMemories = async (page: number = 1, limit: number = 5): Promise<GetMemoriesResponse> => {
   const response = await apiClient.get<GetMemoriesResponse>('/memories', {
     params: { page, limit },
   });

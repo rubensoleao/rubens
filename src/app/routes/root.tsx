@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
 import DropdownMenu from './../components/dropdown-menu'
+import { fetchMemories } from '../lib/api-client'
 export interface Memory {
   id: number
   title: string
@@ -35,32 +36,7 @@ function MemoryCard({ title, date, description, img }: MemoryCardProps) {
 }
 
 export default function Root() {
-  const [db, setDB] = useState<{ memories: Memory[] }>({
-    //FIXME: DBMOCK This is just for development remove and interface with real DB
-    memories: [
-      {
-        id: 1,
-        title: 'Hello world',
-        date: 'May 30, 1999',
-        description: 'I was born on a sunny day on planet earth',
-        img: 'https://picsum.photos/seed/123/400',
-      },
-      {
-        id: 2,
-        title: 'Hello world',
-        date: 'May 30, 1999',
-        description: 'I was born on a sunny day on planet earth',
-        img: 'https://picsum.photos/seed/1234/400',
-      },
-      {
-        id: 3,
-        title: 'Hello world',
-        date: 'May 30, 1999',
-        description: 'I was born on a sunny day on planet earth',
-        img: 'https://picsum.photos/seed/1235/400',
-      },
-    ],
-  })
+  const [memories, setMemories] = useState<Memory[] | undefined >(undefined)
 
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(false)
@@ -73,9 +49,9 @@ export default function Root() {
     setIsLoadingPage(true)
     setTimeout(() => {
       //FIXME: DBMOCK
-      const newDB = { ...db }
+      // const newDB = { ...db }
       newDB.memories.push(...newDB.memories.slice(0, 3))
-      setDB(newDB)
+      // setDB(newDB)
       setCurrentPage(currentPage + 1)
       setIsLoadingPage(false)
     }, 1000)
@@ -94,15 +70,31 @@ export default function Root() {
     }
   }
 
+
   useEffect(() => {
+    // Intialize first 
+    if (memories=== undefined){
+      setIsLoadingPage(true)
+      fetchMemories().then(({memories, page, totalPages}) =>{
+        setMemories(memories)
+        setCurrentPage(page)
+        setMaxNumPages(totalPages)
+      }).catch((err)=>{
+        console.error(err)
+      })
+      setIsLoadingPage(false)
+    }
+  
+    // Handle infite scrol
     window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [isLoadingPage, currentPage])
 
+
   // Dialog 01
-  let [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div className=' min-h-screen'>
@@ -143,7 +135,7 @@ export default function Root() {
           <DropdownMenu options={['Older to new', 'New to older']} />
         </div>
         <div>
-          {db.memories.map((memory) => (
+          {memories?.map((memory) => (
             <MemoryCard
               key={memory.id}
               title={memory.title}
