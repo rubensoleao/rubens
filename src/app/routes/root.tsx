@@ -104,8 +104,9 @@ export default function Root() {
     }
   }, [currentPage, memoriesList])
 
-  // Dialog 01
-  const [isOpen, setIsOpen] = useState(false)
+  // Create Memory Dialog 
+  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] = useState(false)
+
 
   return (
     <div className=' min-h-screen'>
@@ -138,12 +139,12 @@ export default function Root() {
           <Button
             className='btn-primary'
             onClick={() => {
-              setIsOpen(true)
+              setCreateMemoryDialogIsOpen(true)
             }}
           >
             + New memory
           </Button>
-          <DropdownMenu options={['Older to new', 'New to older']} />
+          <DropdownMenu options={['Older to new', 'New to older']}  />
         </div>
         <div>
           {memoriesList?.map((memory) => (
@@ -175,15 +176,15 @@ export default function Root() {
         )
       }
       <CustomDialog
-        isOpen={isOpen}
+        isOpen={createMemoryDialogIsOpen}
         title={'Log your memory'}
         onClose={() => {
-          setIsOpen(false)
+          setCreateMemoryDialogIsOpen(false)
         }}
       >
         <MemoryForm
           onSubmit={() => {
-            setIsOpen(false)
+            setCreateMemoryDialogIsOpen(false)
           }}
         />
       </CustomDialog>
