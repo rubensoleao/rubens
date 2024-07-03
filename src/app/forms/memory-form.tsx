@@ -51,6 +51,9 @@ const MemoryForm: React.FC<MemoryFormProps> = ({
 
       if (onSubmit) {
         onSubmit()
+        //TODO: when submit is from edit, don't reload screen 
+        //      update the edited memory instead.
+        window.location.reload();
       }
     } catch (err) {
       console.error(err)

@@ -51,7 +51,9 @@ function MemoryCard(memory: MemoryCardProps) {
       <MemoryDetailDialog
         memory={memory}
         isOpen={isDetailDialogOpen}
-        onClose={() => setIsDetailDialogOpen(false)}
+        onClose={() => {
+          setIsDetailDialogOpen(false)
+        }}
       />
     </>
   )
@@ -184,10 +186,10 @@ export default function Root() {
           </h1>
           <div>
             <Button
-              className='btn-primary mt-4 mr-2'
+              className='btn-primary mt-4 mr-2 text-gray-600'
               onClick={() => setIsUserDialogOpen(true)}
             >
-              <PencilIcon className='w-4 h-4' />
+              <PencilIcon className='w-4 h-4 ' />
             </Button>
             <Button className='btn-primary'>
               <ShareIcon className='w-4 h-4' />

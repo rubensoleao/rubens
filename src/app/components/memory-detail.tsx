@@ -40,7 +40,7 @@ export default function MemoryDetailDialog({
             <p className='mt-2 text-gray-700'>{memory.description}</p>
 
           </div>
-          <div className='relative'>
+          <div className='relative text-gray-600'>
               <Button
                 className='btn-secondary absolute bottom-1 right-1 float-right'
                 onClick={() => setIsEditDialogOpen(true)}

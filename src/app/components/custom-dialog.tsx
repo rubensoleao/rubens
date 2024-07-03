@@ -50,7 +50,7 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
           <div className='flex min-h-full items-center justify-center p-4 sm:p-0'>
             <DialogPanel
               transition
-              className='w-full sm:max-w-md border shadow-md rounded-xl bg-white p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0'
+              className='w-full sm:max-w-md md:max-w-[900px] border shadow-md rounded-xl bg-white p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0'
             >
               <div className='relative'>
                 <Button
