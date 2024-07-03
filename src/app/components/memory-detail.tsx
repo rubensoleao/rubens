@@ -1,8 +1,9 @@
 import { Button } from '@headlessui/react'
-import { PencilIcon } from '@heroicons/react/20/solid'
+import { PencilIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
+import { deleteMemory } from '../lib/api-client'
 import { Memory } from '../routes/root'
 
 interface MemoryDetailDialogProps {
@@ -23,10 +24,22 @@ export default function MemoryDetailDialog({
     onClose() // close detail dialog after editing
   }
 
+  const handleDelete = async () => {
+    try {
+      await deleteMemory(memory.id)
+      onClose() // close detail dialog after deleting
+
+      //TODO: Remove memory from memories instead of reload
+      window.location.reload();
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   return (
     <>
       <CustomDialog isOpen={isOpen} title='' onClose={onClose}>
-        <div className='flex space-x-4 '>
+        <div className='flex space-x-4'>
           <div className='w-1/3'>
             <img
               src={'http://127.0.0.1:4001' + memory.imageUrl}
@@ -38,16 +51,19 @@ export default function MemoryDetailDialog({
             <h2 className='text-xl font-bold'>{memory.title}</h2>
             <p className='text-gray-500'>{memory.date}</p>
             <p className='mt-2 text-gray-700'>{memory.description}</p>
-
-          </div>
-          <div className='relative text-gray-600'>
+            </div>
+            
+            <div className='relative text-gray-600'>
               <Button
                 className='btn-secondary absolute bottom-1 right-1 float-right'
                 onClick={() => setIsEditDialogOpen(true)}
               >
                 <PencilIcon className='w-4 h-4' />
               </Button>
-            </div>
+              <Button className='absolute bottom-1 right-10 float-right' onClick={handleDelete}>
+                <TrashIcon className='w-4 h-4' />
+              </Button>
+          </div>
         </div>
       </CustomDialog>
       <CustomDialog
@@ -55,7 +71,11 @@ export default function MemoryDetailDialog({
         title='Edit Memory'
         onClose={() => setIsEditDialogOpen(false)}
       >
-        <MemoryForm defaultValue={memory} onSubmit={handleEditSubmit} edit={true} />
+        <MemoryForm
+          defaultValue={memory}
+          onSubmit={handleEditSubmit}
+          edit={true}
+        />
       </CustomDialog>
     </>
   )
