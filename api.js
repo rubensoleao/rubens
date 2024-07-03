@@ -24,10 +24,13 @@ db.serialize(() => {
 app.get('/memories', (req, res) => {
   const page = parseInt(req.query.page) || 1
   const limit = parseInt(req.query.limit) || 10
+  const order = req.query.order === 'desc' ? 'DESC' : 'ASC'
+
   const offset = (page - 1) * limit
 
-  const totalCountQuery = 'SELECT COUNT(*) AS count FROM memories'
-  const paginatedQuery = `SELECT * FROM memories LIMIT ? OFFSET ?`
+
+  const totalCountQuery = `SELECT COUNT(*) AS count FROM memories`
+  const paginatedQuery = `SELECT * FROM memories ORDER BY timestamp ${order} LIMIT ? OFFSET ?`
 
   db.get(totalCountQuery, (err, row) => {
     if (err) {
