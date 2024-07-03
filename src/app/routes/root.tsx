@@ -82,7 +82,6 @@ export default function Root() {
   }
 
   const handleScroll = (e: any) => {
-    console.log(document.body.offsetHeight)
     const scrollHeight = e.target.documentElement.scrollHeight
     const currentHeight =
       e.target.documentElement.scrollTop + window.innerHeight

@@ -23,7 +23,7 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
     const description = formData.get('description') as string
     const date = formData.get('date') as string
     const nDate = parse(date, 'MM/dd/yyyy', new Date())
-    console.log('VALIDATIRON', validateDate(date), date, nDate, isValid(nDate))
+
     if (!validateDate(date)) {
       setFormError('Invalid Date')
       return

@@ -15,7 +15,6 @@ const FileUploadInput: React.FC<FileUploadInputProps> = ({ className }) => {
     }
     setFile(e.target.files[0])
 
-    console.log('FILE', e.target.files[0])
   }
 
   return (
