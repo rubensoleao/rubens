@@ -1,6 +1,6 @@
 import { Button } from '@headlessui/react'
 import { CubeIcon, ShareIcon } from '@heroicons/react/20/solid'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
 import { fetchMemories } from '../lib/api-client'
@@ -22,18 +22,17 @@ interface MemoryCardProps {
 }
 
 function MemoryCard({ title, date, description, imageUrl }: MemoryCardProps) {
-  console.log()
   return (
     <div className='bg-white shadow rounded-lg p-4 mb-4'>
-      <div className='flex  '>
-        <div className='h-[150px] w-[150px] rounded-lg 4 overflow-hidden  '>
+      <div className='flex'>
+        <div className='h-[150px] w-[150px] rounded-lg overflow-hidden'>
           <img
             src={'http://127.0.0.1:4001' + imageUrl}
             alt='Memory'
-            className='h-full w-full object-cover '
+            className='h-full w-full object-cover'
           />
         </div>
-        <div className=' ml-4 '>
+        <div className='ml-4'>
           <h2 className='text-xl font-bold'>{title}</h2>
           <p className='text-gray-500'>{date}</p>
           <p className='mt-2 text-gray-700'>{description}</p>
@@ -52,13 +51,32 @@ export default function Root() {
   const [maxNumPages, setMaxNumPages] = useState<number>(10)
   const [queryOrdering, setQueryOrdering] = useState<string>('asc')
 
+  const getMemories = useCallback(
+    (page: number) => {
+      setIsLoadingPage(true)
+      fetchMemories(page, 5, queryOrdering)
+        .then(({ memories, page, totalPages }) => {
+          const newMemories = memoriesList
+            ? [...memoriesList, ...memories]
+            : memories
+          setMemoriesList(newMemories)
+          setCurrentPage(page)
+          setMaxNumPages(totalPages)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+        .finally(() => {
+          setIsLoadingPage(false)
+        })
+    },
+    [queryOrdering, memoriesList]
+  )
+
   const getNextPage = () => {
-    if (isLoadingPage || currentPage >= maxNumPages) {
-      return
+    if (!isLoadingPage && currentPage < maxNumPages) {
+      getMemories(currentPage + 1)
     }
-    setIsLoadingPage(true)
-    getMemories(currentPage + 1)
-    setIsLoadingPage(false)
   }
 
   const handleScroll = (e: any) => {
@@ -68,62 +86,41 @@ export default function Root() {
     if (
       currentHeight + 20 >= scrollHeight &&
       !isLoadingPage &&
-      memoriesList != undefined &&
+      memoriesList &&
       currentPage < maxNumPages
     ) {
       getNextPage()
     }
   }
 
-  const getMemories = (page: number) => {
-    fetchMemories(page, 5, queryOrdering)
-      .then(({ memories, page, totalPages }) => {
-        const newMemories = memoriesList
-          ? [...memoriesList, ...memories]
-          : memories
-        setMemoriesList(newMemories)
-        setCurrentPage(page)
-        setMaxNumPages(totalPages)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }
-
   useEffect(() => {
-    // Handle infinite scroll
     window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [memoriesList, currentPage])
+  }, [handleScroll])
 
   useEffect(() => {
     if (memoriesList === undefined) {
-      setIsLoadingPage(true)
       getMemories(1)
-      setIsLoadingPage(false)
     }
-  }, [currentPage, memoriesList])
+  }, [queryOrdering, getMemories, memoriesList])
 
   // Create Memory Dialog
   const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] =
     useState(false)
 
-  const selectFilter = (e: string) => {
-    e === 'Older to newer' ? setQueryOrdering('desc') : setQueryOrdering('asc')
-    setIsLoadingPage(true)
+  const selectFilter = (filter: string) => {
+    const ordering = filter === 'Older to newer' ? 'desc' : 'asc'
+    setQueryOrdering(ordering)
     setMemoriesList(undefined)
-    getMemories(currentPage)
-    setIsLoadingPage(false)
+    setCurrentPage(1)
   }
 
   const handleMemorySubmit = () => {
     setCreateMemoryDialogIsOpen(false)
-    setIsLoadingPage(true)
     setMemoriesList(undefined)
     getMemories(1)
-    setIsLoadingPage(false)
   }
 
   return (
@@ -156,9 +153,7 @@ export default function Root() {
         <div className='flex justify-between items-center mb-4'>
           <Button
             className='btn-primary'
-            onClick={() => {
-              setCreateMemoryDialogIsOpen(true)
-            }}
+            onClick={() => setCreateMemoryDialogIsOpen(true)}
           >
             + New memory
           </Button>
@@ -195,9 +190,7 @@ export default function Root() {
       <CustomDialog
         isOpen={createMemoryDialogIsOpen}
         title={'Log your memory'}
-        onClose={() => {
-          setCreateMemoryDialogIsOpen(false)
-        }}
+        onClose={() => setCreateMemoryDialogIsOpen(false)}
       >
         <MemoryForm onSubmit={handleMemorySubmit} />
       </CustomDialog>
