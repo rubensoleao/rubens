@@ -7,6 +7,7 @@ import UserEditForm from '../forms/user-edit-form'
 import { fetchMemories, fetchUser } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
 import MemoryDetailDialog from '../components/memory-detail'
+import Toast from '../components/toast' 
 
 export interface Memory {
   id: number
@@ -70,6 +71,8 @@ export default function Root() {
   const [userName, setUserName] = useState<string>('')
   const [userDescription, setUserDescription] = useState<string>('')
   const [isUserDialogOpen, setIsUserDialogOpen] = useState<boolean>(false)
+  const [isToastVisible, setIsToastVisible] = useState<boolean>(false)
+  const [toastMessage, setToastMessage] = useState<string>('')
 
   const getMemories = useCallback(
     (page: number) => {
@@ -90,7 +93,7 @@ export default function Root() {
           setIsLoadingPage(false)
         })
     },
-    [queryOrdering, memoriesList, currentPage]
+    [queryOrdering, memoriesList]
   )
 
   const getNextPage = () => {
@@ -171,6 +174,19 @@ export default function Root() {
       })
   }
 
+  const handleShare = () => {
+    const fakeLink = `https://memorylane.com/share/${userName}`
+    navigator.clipboard.writeText(fakeLink).then(
+      () => {
+        setToastMessage('Link copied to clipboard! ')
+        setIsToastVisible(true)
+      },
+      (err) => {
+        console.error('Failed to copy: ', err)
+      }
+    )
+  }
+
   return (
     <div className='min-h-screen'>
       <div className='max-w-3xl mx-auto p-4 h-screen'>
@@ -189,9 +205,9 @@ export default function Root() {
               className='btn-primary mt-4 mr-2 text-gray-600'
               onClick={() => setIsUserDialogOpen(true)}
             >
-              <PencilIcon className='w-4 h-4 ' />
+              <PencilIcon className='w-4 h-4' />
             </Button>
-            <Button className='btn-primary'>
+            <Button className='btn-primary' onClick={handleShare}>
               <ShareIcon className='w-4 h-4' />
             </Button>
           </div>
@@ -249,12 +265,15 @@ export default function Root() {
       <CustomDialog
         isOpen={isUserDialogOpen}
         title={'Profile'}
-        onClose={() => {
-          setIsUserDialogOpen(false)
-        }}
+        onClose={() => setIsUserDialogOpen(false)}
       >
         <UserEditForm onSubmit={handleUserSubmit} />
       </CustomDialog>
+      <Toast
+        message={toastMessage}
+        show={isToastVisible}
+        onClose={() => setIsToastVisible(false)}
+      />
     </div>
   )
 }
