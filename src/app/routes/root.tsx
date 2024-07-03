@@ -1,13 +1,14 @@
-import { Button } from '@headlessui/react'
+import { Button, Transition } from '@headlessui/react'
 import { CubeIcon, PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
+import clsx from 'clsx'
 import { useCallback, useEffect, useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
+import MemoryDetailDialog from '../components/memory-detail'
+import Toast from '../components/toast'
 import MemoryForm from '../forms/memory-form'
 import UserEditForm from '../forms/user-edit-form'
 import { fetchMemories, fetchUser } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
-import MemoryDetailDialog from '../components/memory-detail'
-import Toast from '../components/toast' 
 
 export interface Memory {
   id: number
@@ -24,30 +25,48 @@ interface MemoryCardProps {
   description: string
   imageUrl: string
 }
-
 function MemoryCard(memory: MemoryCardProps) {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   return (
-    <>
-      <div
-        className='bg-white shadow rounded-lg p-4 mb-4 cursor-pointer'
-        onClick={() => setIsDetailDialogOpen(true)}
-      >
-        <div className='flex'>
-          <div className='h-[150px] w-[150px] rounded-lg overflow-hidden'>
+    <div>
+      <div className=''>
+        <Transition
+          as='div'
+          show={true}
+          enter='transition-all duration-300 ease-in-out'
+          enterFrom='transform scale-100'
+          enterTo='transform scale-100'
+          leave='transition-all duration-300 ease-in-out'
+          leaveFrom='transform scale-100'
+          leaveTo='transform scale-100'
+          className='bg-white shadow rounded-lg p-4 mb-4 cursor-pointer flex h-[180px] overflow-hidden'
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={() => setIsDetailDialogOpen(true)}
+        >
+          <div
+            className={clsx(
+              'h-auto rounded-lg overflow-hidden transition-all duration-300 ease-in-out',
+              isHovered ? 'w-[200px] max-w-[200px]' : 'w-[80px] max-w-[80px]'
+            )}
+          >
             <img
               src={'http://127.0.0.1:4001' + memory.imageUrl}
               alt='Memory'
               className='h-full w-full object-cover'
             />
           </div>
-          <div className='ml-4'>
+          <div className='ml-4 flex-1 transition-all duration-300 ease-in-out relative'>
             <h2 className='text-xl font-bold'>{memory.title}</h2>
             <p className='text-gray-500'>{memory.date}</p>
-            <p className='mt-2 text-gray-700'>{memory.description}</p>
+            <div className='relative max-h-[150px] overflow-hidden'>
+              <p className='mt-2 text-gray-700'>{memory.description}</p>
+              <div className='absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent'></div>
+            </div>
           </div>
-        </div>
+        </Transition>
       </div>
       <MemoryDetailDialog
         memory={memory}
@@ -56,7 +75,7 @@ function MemoryCard(memory: MemoryCardProps) {
           setIsDetailDialogOpen(false)
         }}
       />
-    </>
+    </div>
   )
 }
 

@@ -1,15 +1,15 @@
-import { Button } from '@headlessui/react'
-import { PencilIcon, TrashIcon } from '@heroicons/react/20/solid'
-import { useState } from 'react'
-import CustomDialog from '../components/custom-dialog'
-import MemoryForm from '../forms/memory-form'
-import { deleteMemory } from '../lib/api-client'
-import { Memory } from '../routes/root'
+import { Button } from '@headlessui/react';
+import { PencilIcon, TrashIcon } from '@heroicons/react/20/solid';
+import { useState } from 'react';
+import CustomDialog from '../components/custom-dialog';
+import MemoryForm from '../forms/memory-form';
+import { deleteMemory } from '../lib/api-client';
+import { Memory } from '../routes/root';
 
 interface MemoryDetailDialogProps {
-  memory: Memory
-  isOpen: boolean
-  onClose: () => void
+  memory: Memory;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export default function MemoryDetailDialog({
@@ -17,29 +17,29 @@ export default function MemoryDetailDialog({
   isOpen,
   onClose,
 }: MemoryDetailDialogProps) {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleEditSubmit = () => {
-    setIsEditDialogOpen(false)
-    onClose() // close detail dialog after editing
-  }
+    setIsEditDialogOpen(false);
+    onClose(); // close detail dialog after editing
+  };
 
   const handleDelete = async () => {
     try {
-      await deleteMemory(memory.id)
-      onClose() // close detail dialog after deleting
+      await deleteMemory(memory.id);
+      onClose(); // close detail dialog after deleting
 
-      //TODO: Remove memory from memories instead of reload
+      // TODO: Remove memory from memories instead of reload
       window.location.reload();
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
 
   return (
     <>
       <CustomDialog isOpen={isOpen} title='' onClose={onClose}>
-        <div className='flex space-x-4'>
+        <div className='flex space-x-4 mr-6 h-auto'>
           <div className='w-1/3'>
             <img
               src={'http://127.0.0.1:4001' + memory.imageUrl}
@@ -47,13 +47,13 @@ export default function MemoryDetailDialog({
               className='w-full h-auto object-cover'
             />
           </div>
-          <div className='w-2/3'>
-            <h2 className='text-xl font-bold'>{memory.title}</h2>
+          <div className='w-2/3 '>
+            <h2 className='text-xl font-bold break-words'>{memory.title}</h2>
             <p className='text-gray-500'>{memory.date}</p>
-            <p className='mt-2 text-gray-700'>{memory.description}</p>
-            </div>
-            
-            <div className='relative text-gray-600'>
+            <p className='mt-2 text-gray-700 break-words'>{memory.description}</p>
+
+          </div>
+          <div className='relative text-gray-600'>
               <Button
                 className='btn-secondary absolute bottom-1 right-1 float-right'
                 onClick={() => setIsEditDialogOpen(true)}
@@ -63,7 +63,7 @@ export default function MemoryDetailDialog({
               <Button className='absolute bottom-1 right-10 float-right' onClick={handleDelete}>
                 <TrashIcon className='w-4 h-4' />
               </Button>
-          </div>
+            </div>
         </div>
       </CustomDialog>
       <CustomDialog
@@ -77,6 +77,7 @@ export default function MemoryDetailDialog({
           edit={true}
         />
       </CustomDialog>
+      
     </>
-  )
+  );
 }
