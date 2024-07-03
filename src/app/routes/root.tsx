@@ -61,9 +61,9 @@ function MemoryCard(memory: MemoryCardProps) {
           <div className='ml-4 flex-1 transition-all duration-300 ease-in-out relative'>
             <h2 className='text-xl font-bold'>{memory.title}</h2>
             <p className='text-gray-500'>{memory.date}</p>
-            <div className='relative max-h-[150px] overflow-hidden'>
+            <div className='inherit max-h-[150px] overflow-hidden'>
               <p className='mt-2 text-gray-700'>{memory.description}</p>
-              <div className='absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent'></div>
+              <div className='absolute bottom-[-20px] left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent'></div>
             </div>
           </div>
         </Transition>
