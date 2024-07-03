@@ -25,7 +25,7 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT,
       description TEXT,
-      timestamp DATE,
+      date DATE,
       imageUrl TEXT
     )
   `)
@@ -39,7 +39,7 @@ app.get('/memories', (req, res) => {
   const offset = (page - 1) * limit
 
   const totalCountQuery = `SELECT COUNT(*) AS count FROM memories`
-  const paginatedQuery = `SELECT * FROM memories ORDER BY timestamp ${order} LIMIT ? OFFSET ?`
+  const paginatedQuery = `SELECT * FROM memories ORDER BY date ${order} LIMIT ? OFFSET ?`
 
   db.get(totalCountQuery, (err, row) => {
     if (err) {
@@ -79,20 +79,20 @@ app.post('/upload', upload.single('image'), (req, res) => {
 })
 
 app.post('/memories', (req, res) => {
-  const { title, description, timestamp, imageUrl } = req.body
+  const { title, description, date, imageUrl } = req.body
 
-  if (!title || !description || !timestamp || !imageUrl) {
+  if (!title || !description || !date || !imageUrl) {
     res.status(400).json({
       error:
-        'Please provide all fields: title, description, timestamp, imageUrl',
+        'Please provide all fields: title, description, date, imageUrl',
     })
     return
   }
 
   const stmt = db.prepare(
-    'INSERT INTO memories (title, description, timestamp, imageUrl) VALUES (?, ?, ?, ?)'
+    'INSERT INTO memories (title, description, date, imageUrl) VALUES (?, ?, ?, ?)'
   )
-  stmt.run(title, description, timestamp, imageUrl, (err) => {
+  stmt.run(title, description, date, imageUrl, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
@@ -118,20 +118,20 @@ app.get('/memories/:id', validateParamId, (req, res) => {
 
 app.put('/memories/:id', (req, res) => {
   const { id } = req.params
-  const { title, description, timestamp, imageUrl } = req.body
+  const { title, description, date, imageUrl } = req.body
 
-  if (!title || !description || !timestamp || !imageUrl) {
+  if (!title || !description || !date || !imageUrl) {
     res.status(400).json({
       error:
-        'Please provide all fields: title, description, timestamp, imageUrl',
+        'Please provide all fields: title, description, date, imageUrl',
     })
     return
   }
 
   const stmt = db.prepare(
-    'UPDATE memories SET title = ?, description = ?, timestamp = ?, imageUrl = ? WHERE id = ?'
+    'UPDATE memories SET title = ?, description = ?, date = ?, imageUrl = ? WHERE id = ?'
   )
-  stmt.run(title, description, timestamp, imageUrl, id, (err) => {
+  stmt.run(title, description, date, imageUrl, id, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return

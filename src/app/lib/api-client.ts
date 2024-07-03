@@ -100,13 +100,13 @@ export const fetchMemory = async (id: number): Promise<GetMemoryResponse> => {
 export const createMemory = async (
   title: string,
   description: string,
-  timestamp: string,
+  date: string,
   imageUrl: string
 ): Promise<CreateMemoryResponse> => {
   const response = await apiClient.post<CreateMemoryResponse>('/memories', {
     title,
     description,
-    timestamp,
+    date,
     imageUrl,
   })
   return response.data
@@ -117,7 +117,7 @@ export const updateMemory = async (
   id: number,
   title: string,
   description: string,
-  timestamp: string,
+  date: string,
   imageUrl: string
 ): Promise<UpdateMemoryResponse> => {
   const response = await apiClient.put<UpdateMemoryResponse>(
@@ -125,7 +125,7 @@ export const updateMemory = async (
     {
       title,
       description,
-      timestamp,
+      date,
       imageUrl,
     }
   )
