@@ -4,21 +4,27 @@ import { format, isValid, parse } from 'date-fns'
 import React, { useState } from 'react'
 import InputMask from 'react-input-mask'
 import FileUploadInput from '../components/file-upload-input'
-import { createMemory, uploadImage } from '../lib/api-client'
-import { Memory } from './../routes/root'
+import { createMemory, updateMemory, uploadImage } from '../lib/api-client'
+import { Memory } from '../routes/root'
 
 interface MemoryFormProps {
   defaultValue?: Memory
   onSubmit?: () => any
+  edit?: boolean
 }
 
-const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
+const MemoryForm: React.FC<MemoryFormProps> = ({
+  defaultValue,
+  onSubmit,
+  edit = false,
+}) => {
   const validateDate = (dateString: string) =>
     isValid(parse(dateString, 'MM/dd/yyyy', new Date()))
   const [formError, setFormError] = useState<string | undefined>(undefined)
   const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
 
   const submitData = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const title = formData.get('title') as string
     const description = formData.get('description') as string
@@ -30,14 +36,18 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
     }
 
     try {
-      let imageUrl = ''
+      let imageUrl = defaultValue?.imageUrl || ''
 
-      if (selectedFile) {
+      if (!edit && selectedFile) {
         const uploadResponse = await uploadImage(selectedFile)
         imageUrl = uploadResponse.imageUrl
       }
 
-      await createMemory(title, description, date, imageUrl)
+      if (defaultValue) {
+        await updateMemory(defaultValue.id, title, description, date)
+      } else {
+        await createMemory(title, description, date, imageUrl)
+      }
 
       if (onSubmit) {
         onSubmit()
@@ -50,10 +60,12 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
   return (
     <div className='flex flex-col space-y-2'>
       <form onSubmit={submitData} className='mt-4'>
-        <Field as='div' className='mb-4'>
-          <Label className='text-sm/6 font-medium'>Picture</Label>
-          <FileUploadInput className='mt-1' onFileChange={setSelectedFile} />
-        </Field>
+        {!edit && (
+          <Field as='div' className='mb-4'>
+            <Label className='text-sm/6 font-medium'>Picture</Label>
+            <FileUploadInput className='mt-1' onFileChange={setSelectedFile} />
+          </Field>
+        )}
         <Field as='div' className='mb-4'>
           <Label className='text-sm/6 font-medium'>
             Date{' '}
@@ -63,7 +75,11 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
           </Label>
           <InputMask
             mask='99/99/9999'
-            defaultValue={format(new Date(), 'MM/dd/yyyy')}
+            defaultValue={
+              defaultValue
+                ? defaultValue.date
+                : format(new Date(), 'MM/dd/yyyy')
+            }
             name='date'
             onChange={() => {
               if (formError) {
@@ -78,26 +94,22 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
               'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm focused-input'
             )}
             placeholder='MM/DD/YYYY'
-            default='05/22/1992'
           />
         </Field>
         <Field as='div' className='mb-4'>
           <Label className='text-sm/6 font-medium'>Title</Label>
           <Input
             name='title'
-            className={
-              'mt-1 block w-full rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 focused-input'
-            }
+            defaultValue={defaultValue ? defaultValue.title : ''}
+            className='mt-1 block w-full rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 focused-input'
           />
         </Field>
-
         <Field as='div' className='mb-4'>
           <Label className='text-sm/6 font-medium'>Memory</Label>
           <Textarea
             name='description'
-            className={
-              'mt-1 block w-full resize-none rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 focused-input'
-            }
+            defaultValue={defaultValue ? defaultValue.description : ''}
+            className='mt-1 block w-full resize-none rounded-lg border bg-white/5 py-1.5 px-3 text-sm/6 focused-input'
             rows={3}
           />
         </Field>

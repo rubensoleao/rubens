@@ -1,5 +1,4 @@
 import { Button } from '@headlessui/react'
-
 import { CubeIcon, PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
 import { useCallback, useEffect, useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
@@ -7,6 +6,7 @@ import MemoryForm from '../forms/memory-form'
 import UserEditForm from '../forms/user-edit-form'
 import { fetchMemories, fetchUser } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
+import MemoryDetailDialog from '../components/memory-detail'
 
 export interface Memory {
   id: number
@@ -17,30 +17,43 @@ export interface Memory {
 }
 
 interface MemoryCardProps {
+  id: number
   title: string
   date: string
   description: string
   imageUrl: string
 }
 
-function MemoryCard({ title, date, description, imageUrl }: MemoryCardProps) {
+function MemoryCard(memory: MemoryCardProps) {
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
+
   return (
-    <div className='bg-white shadow rounded-lg p-4 mb-4'>
-      <div className='flex'>
-        <div className='h-[150px] w-[150px] rounded-lg overflow-hidden'>
-          <img
-            src={'http://127.0.0.1:4001' + imageUrl}
-            alt='Memory'
-            className='h-full w-full object-cover'
-          />
-        </div>
-        <div className='ml-4'>
-          <h2 className='text-xl font-bold'>{title}</h2>
-          <p className='text-gray-500'>{date}</p>
-          <p className='mt-2 text-gray-700'>{description}</p>
+    <>
+      <div
+        className='bg-white shadow rounded-lg p-4 mb-4 cursor-pointer'
+        onClick={() => setIsDetailDialogOpen(true)}
+      >
+        <div className='flex'>
+          <div className='h-[150px] w-[150px] rounded-lg overflow-hidden'>
+            <img
+              src={'http://127.0.0.1:4001' + memory.imageUrl}
+              alt='Memory'
+              className='h-full w-full object-cover'
+            />
+          </div>
+          <div className='ml-4'>
+            <h2 className='text-xl font-bold'>{memory.title}</h2>
+            <p className='text-gray-500'>{memory.date}</p>
+            <p className='mt-2 text-gray-700'>{memory.description}</p>
+          </div>
         </div>
       </div>
-    </div>
+      <MemoryDetailDialog
+        memory={memory}
+        isOpen={isDetailDialogOpen}
+        onClose={() => setIsDetailDialogOpen(false)}
+      />
+    </>
   )
 }
 
@@ -202,6 +215,7 @@ export default function Root() {
           {memoriesList?.map((memory) => (
             <MemoryCard
               key={memory.id}
+              id={memory.id}
               title={memory.title}
               date={memory.date}
               description={memory.description}
@@ -232,7 +246,7 @@ export default function Root() {
       </CustomDialog>
       <CustomDialog
         isOpen={isUserDialogOpen}
-        title={'Profile' }
+        title={'Profile'}
         onClose={() => {
           setIsUserDialogOpen(false)
         }}

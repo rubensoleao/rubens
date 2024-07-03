@@ -25,7 +25,7 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT,
       description TEXT,
-      date DATE,
+      'date' TEXT,
       imageUrl TEXT
     )
   `)
@@ -120,18 +120,18 @@ app.put('/memories/:id', (req, res) => {
   const { id } = req.params
   const { title, description, date, imageUrl } = req.body
 
-  if (!title || !description || !date || !imageUrl) {
+  if (!title || !description || !date ) {
     res.status(400).json({
       error:
-        'Please provide all fields: title, description, date, imageUrl',
+        'Please provide all fields: title, description, date',
     })
     return
   }
 
   const stmt = db.prepare(
-    'UPDATE memories SET title = ?, description = ?, date = ?, imageUrl = ? WHERE id = ?'
+    'UPDATE memories SET title = ?, description = ?, date = ? WHERE id = ?'
   )
-  stmt.run(title, description, date, imageUrl, id, (err) => {
+  stmt.run(title, description, date, id, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return

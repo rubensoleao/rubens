@@ -118,7 +118,6 @@ export const updateMemory = async (
   title: string,
   description: string,
   date: string,
-  imageUrl: string
 ): Promise<UpdateMemoryResponse> => {
   const response = await apiClient.put<UpdateMemoryResponse>(
     `/memories/${id}`,
@@ -126,7 +125,6 @@ export const updateMemory = async (
       title,
       description,
       date,
-      imageUrl,
     }
   )
   return response.data
