@@ -18,7 +18,6 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
   const [formError, setFormError] = useState<string | undefined>(undefined)
 
   const submitData = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const title = formData.get('title') as string
     const description = formData.get('description') as string

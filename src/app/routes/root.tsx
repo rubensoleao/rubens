@@ -26,9 +26,7 @@ function MemoryCard({ title, date, description, img }: MemoryCardProps) {
       <div className='flex items-center'>
         <img src={img} alt='Cactus' className='h-20 w-20 rounded-full' />
         <div className='ml-4'>
-          <h2 className='text-xl font-bold'>
-            {title}
-          </h2>
+          <h2 className='text-xl font-bold'>{title}</h2>
           <p className='text-gray-500'>{date}</p>
           <p className='mt-2 text-gray-700'>{description}</p>
         </div>
@@ -45,6 +43,7 @@ export default function Root() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [maxNumPages, setMaxNumPages] = useState<number>(10)
+  const [queryOrdering, setQueryOrdering] = useState<string>('asc')
 
   const getNextPage = () => {
     if (
@@ -73,7 +72,7 @@ export default function Root() {
   }
 
   const getMemories = (page: number) => {
-    fetchMemories(page)
+    fetchMemories(page, 5, queryOrdering)
       .then(({ memories, page, totalPages }) => {
         const newMemories = memoriesList
           ? [...memoriesList, ...memories]
@@ -104,9 +103,18 @@ export default function Root() {
     }
   }, [currentPage, memoriesList])
 
-  // Create Memory Dialog 
-  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] = useState(false)
+  // Create Memory Dialog
+  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] =
+    useState(false)
 
+  const selectFilter = (e: string) => {
+    e === 'Older to newer' ? setQueryOrdering('desc') : setQueryOrdering('asc')
+    setIsLoadingPage(true)
+    setMemoriesList(undefined)
+    getMemories(currentPage)
+    setIsLoadingPage(false)
+
+  }
 
   return (
     <div className=' min-h-screen'>
@@ -144,7 +152,10 @@ export default function Root() {
           >
             + New memory
           </Button>
-          <DropdownMenu options={['Older to new', 'New to older']}  />
+          <DropdownMenu
+            options={['Older to newer', 'Newer to older']}
+            onSelect={selectFilter}
+          />
         </div>
         <div>
           {memoriesList?.map((memory) => (

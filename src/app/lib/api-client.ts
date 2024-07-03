@@ -44,9 +44,9 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // GET /memories
-export const fetchMemories = async (page: number = 1, limit: number = 5): Promise<GetMemoriesResponse> => {
+export const fetchMemories = async (page: number = 1, limit: number = 5, order:string = 'asc' ): Promise<GetMemoriesResponse> => {
   const response = await apiClient.get<GetMemoriesResponse>('/memories', {
-    params: { page, limit },
+    params: { page, limit, order },
   });
   return response.data;
 };
