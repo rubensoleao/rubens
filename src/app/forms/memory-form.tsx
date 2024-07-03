@@ -1,11 +1,11 @@
 import { Button, Field, Input, Label, Textarea } from '@headlessui/react'
 import clsx from 'clsx'
+import { format, isValid, parse } from 'date-fns'
 import React, { useState } from 'react'
 import InputMask from 'react-input-mask'
-import { Memory } from './../routes/root'
-import { parse, isValid, format } from 'date-fns'
 import FileUploadInput from '../components/file-upload-input'
-import { createMemory } from '../lib/api-client'
+import { createMemory, uploadImage } from '../lib/api-client'
+import { Memory } from './../routes/root'
 
 interface MemoryFormProps {
   defaultValue?: Memory
@@ -16,8 +16,9 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
   const validateDate = (dateString: string) =>
     isValid(parse(dateString, 'MM/dd/yyyy', new Date()))
   const [formError, setFormError] = useState<string | undefined>(undefined)
+  const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined)
 
-  const submitData = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitData = async (e: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(e.currentTarget)
     const title = formData.get('title') as string
     const description = formData.get('description') as string
@@ -28,13 +29,21 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
       return
     }
 
-    createMemory(title, description, date).catch((err) => {
-      console.error(err)
-      return
-    })
+    try {
+      let imageUrl = ''
 
-    if (onSubmit) {
-      onSubmit()
+      if (selectedFile) {
+        const uploadResponse = await uploadImage(selectedFile)
+        imageUrl = uploadResponse.imageUrl
+      }
+
+      await createMemory(title, description, date, imageUrl)
+
+      if (onSubmit) {
+        onSubmit()
+      }
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -42,13 +51,13 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
     <div className='flex flex-col space-y-2'>
       <form onSubmit={submitData} className='mt-4'>
         <Field as='div' className='mb-4'>
-          <Label className=' text-sm/6 font-medium'>Picture</Label>
-          <FileUploadInput className='mt-1' />
+          <Label className='text-sm/6 font-medium'>Picture</Label>
+          <FileUploadInput className='mt-1' onFileChange={setSelectedFile} />
         </Field>
         <Field as='div' className='mb-4'>
           <Label className='text-sm/6 font-medium'>
             Date{' '}
-            <span className=' text-[12px] text-gray-400 pl-1'>
+            <span className='text-[12px] text-gray-400 pl-1'>
               ( MM/DD/YYYY )
             </span>
           </Label>
@@ -66,7 +75,7 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
                 'border-red-400 focus:border-red-600 border-x-8 focus:ring-red-400':
                   formError,
               },
-              'mt-1  block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm focused-input'
+              'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm focused-input'
             )}
             placeholder='MM/DD/YYYY'
             default='05/22/1992'
@@ -83,7 +92,7 @@ const MemoryForm: React.FC<MemoryFormProps> = ({ defaultValue, onSubmit }) => {
         </Field>
 
         <Field as='div' className='mb-4'>
-          <Label className='text-sm/6 font-medium '>Memory</Label>
+          <Label className='text-sm/6 font-medium'>Memory</Label>
           <Textarea
             name='description'
             className={

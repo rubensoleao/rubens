@@ -1,12 +1,11 @@
 import axios, { AxiosInstance } from 'axios';
 
-// Define the types for the responses
 interface Memory {
   id: number;
-  img: string;
   title: string;
   description: string;
   date: string;
+  imageUrl: string;
 }
 
 interface GetMemoriesResponse {
@@ -33,18 +32,35 @@ interface DeleteMemoryResponse {
   message: string;
 }
 
+interface UploadImageResponse {
+  imageUrl: string;
+}
+
 // Axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: 'http://localhost:4001',
   withCredentials: false,
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin':'*',
+    'Access-Control-Allow-Origin': '*',
   },
 });
 
+// Function to upload an image
+export const uploadImage = async (imageFile: File): Promise<UploadImageResponse> => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+
+  const response = await apiClient.post<UploadImageResponse>('/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 // GET /memories
-export const fetchMemories = async (page: number = 1, limit: number = 5, order:string = 'asc' ): Promise<GetMemoriesResponse> => {
+export const fetchMemories = async (page: number = 1, limit: number = 5, order: string = 'asc'): Promise<GetMemoriesResponse> => {
   const response = await apiClient.get<GetMemoriesResponse>('/memories', {
     params: { page, limit, order },
   });
@@ -58,21 +74,23 @@ export const fetchMemory = async (id: number): Promise<GetMemoryResponse> => {
 };
 
 // POST /memories
-export const createMemory = async (title: string, description: string, timestamp: string): Promise<CreateMemoryResponse> => {
+export const createMemory = async (title: string, description: string, timestamp: string, imageUrl: string): Promise<CreateMemoryResponse> => {
   const response = await apiClient.post<CreateMemoryResponse>('/memories', {
     title,
     description,
     timestamp,
+    imageUrl,
   });
   return response.data;
 };
 
 // PUT /memories/:id
-export const updateMemory = async (id: number, title: string, description: string, timestamp: string): Promise<UpdateMemoryResponse> => {
+export const updateMemory = async (id: number, title: string, description: string, timestamp: string, imageUrl: string): Promise<UpdateMemoryResponse> => {
   const response = await apiClient.put<UpdateMemoryResponse>(`/memories/${id}`, {
     title,
     description,
     timestamp,
+    imageUrl,
   });
   return response.data;
 };

@@ -5,26 +5,28 @@ import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
 import { fetchMemories } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
+
 export interface Memory {
   id: number
   title: string
   date: string
   description: string
-  img: string
+  imageUrl: string 
 }
 
 interface MemoryCardProps {
   title: string
   date: string
   description: string
-  img: string
+  imageUrl: string
 }
 
-function MemoryCard({ title, date, description, img }: MemoryCardProps) {
+function MemoryCard({ title, date, description, imageUrl }: MemoryCardProps) {
+  console.log()
   return (
-    <div className='bg-white shadow rounded-lg p-4  mb-4  '>
+    <div className='bg-white shadow rounded-lg p-4 mb-4'>
       <div className='flex items-center'>
-        <img src={img} alt='Cactus' className='h-20 w-20 rounded-full' />
+        <img src={'http://127.0.0.1:4001'+imageUrl} alt='Memory' className='h-20 w-20 rounded-full' />
         <div className='ml-4'>
           <h2 className='text-xl font-bold'>{title}</h2>
           <p className='text-gray-500'>{date}</p>
@@ -39,17 +41,13 @@ export default function Root() {
   const [memoriesList, setMemoriesList] = useState<Memory[] | undefined>(
     undefined
   )
-
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [maxNumPages, setMaxNumPages] = useState<number>(10)
   const [queryOrdering, setQueryOrdering] = useState<string>('asc')
 
   const getNextPage = () => {
-    if (
-      isLoadingPage || //avoids more than one request
-      currentPage >= maxNumPages
-    ) {
+    if (isLoadingPage || currentPage >= maxNumPages) {
       return
     }
     setIsLoadingPage(true)
@@ -77,7 +75,6 @@ export default function Root() {
         const newMemories = memoriesList
           ? [...memoriesList, ...memories]
           : memories
-        console.log('BEW', newMemories)
         setMemoriesList(newMemories)
         setCurrentPage(page)
         setMaxNumPages(totalPages)
@@ -88,7 +85,7 @@ export default function Root() {
   }
 
   useEffect(() => {
-    // Handle infite scrol
+    // Handle infinite scroll
     window.addEventListener('scroll', handleScroll)
     return () => {
       window.removeEventListener('scroll', handleScroll)
@@ -113,13 +110,20 @@ export default function Root() {
     setMemoriesList(undefined)
     getMemories(currentPage)
     setIsLoadingPage(false)
+  }
 
+  const handleMemorySubmit = () => {
+    setCreateMemoryDialogIsOpen(false)
+    setIsLoadingPage(true)
+    setMemoriesList(undefined)
+    getMemories(1)
+    setIsLoadingPage(false)
   }
 
   return (
-    <div className=' min-h-screen'>
+    <div className='min-h-screen'>
       <div className='max-w-3xl mx-auto p-4 h-screen'>
-        <div className='flex items-center justify-center lg:fixed lg:top-4 lg:left-4 md:sticky md:top-0 md:z-10 '>
+        <div className='flex items-center justify-center lg:fixed lg:top-4 lg:left-4 md:sticky md:top-0 md:z-10'>
           <CubeIcon className='h-6 w-6 text-black' />
           <p className='text-lg font-semibold text-gray-900 ml-2'>
             Memory Lane
@@ -164,7 +168,7 @@ export default function Root() {
               title={memory.title}
               date={memory.date}
               description={memory.description}
-              img={memory.img}
+              imageUrl={memory.imageUrl}
             />
           ))}
         </div>
@@ -179,13 +183,9 @@ export default function Root() {
           </div>
         )}
       </div>
-      {
-        // Add a nbsp to bottom of page to enable scrooling mechanism
-        // maybye put this in seperate component to make it more readable
-        maxNumPages != 1 && (
-          <span className='absolute bottom-[-20px] pt-4 '>{'\u00A0'}</span>
-        )
-      }
+      {maxNumPages != 1 && (
+        <span className='absolute bottom-[-20px] pt-4'>{'\u00A0'}</span>
+      )}
       <CustomDialog
         isOpen={createMemoryDialogIsOpen}
         title={'Log your memory'}
@@ -193,11 +193,7 @@ export default function Root() {
           setCreateMemoryDialogIsOpen(false)
         }}
       >
-        <MemoryForm
-          onSubmit={() => {
-            setCreateMemoryDialogIsOpen(false)
-          }}
-        />
+        <MemoryForm onSubmit={handleMemorySubmit} />
       </CustomDialog>
     </div>
   )
