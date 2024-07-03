@@ -1,10 +1,10 @@
 import { Button } from '@headlessui/react'
 import { CubeIcon, ShareIcon } from '@heroicons/react/20/solid'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CustomDialog from '../components/custom-dialog'
 import MemoryForm from '../forms/memory-form'
-import DropdownMenu from './../components/dropdown-menu'
 import { fetchMemories } from '../lib/api-client'
+import DropdownMenu from './../components/dropdown-menu'
 export interface Memory {
   id: number
   title: string
