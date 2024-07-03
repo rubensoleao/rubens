@@ -88,7 +88,7 @@ export default function Root() {
           setIsLoadingPage(false)
         })
     },
-    [queryOrdering, memoriesList]
+    [queryOrdering, memoriesList, currentPage]
   )
 
   const getNextPage = () => {
@@ -154,7 +154,7 @@ export default function Root() {
   const handleMemorySubmit = () => {
     setCreateMemoryDialogIsOpen(false)
     setMemoriesList(undefined)
-    getMemories(1)
+    setCurrentPage(1)
   }
 
   const handleUserSubmit = () => {
