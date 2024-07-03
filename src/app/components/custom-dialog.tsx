@@ -52,13 +52,14 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
               transition
               className='w-full sm:max-w-md border shadow-md rounded-xl bg-white p-6 duration-300 ease-out data-[closed]:transform-[scale(95%)] data-[closed]:opacity-0'
             >
-              <Button
-                className=' border-none btn-primary relative float-right'
-                onClick={() => onClose()}
-              >
-                <XMarkIcon className='w-4 h-4'></XMarkIcon>
-              </Button>
-
+              <div className='relative'>
+                <Button
+                  className=' absolute border-none btn-primary top-0 right-0'
+                  onClick={() => onClose()}
+                >
+                  <XMarkIcon className='w-4 h-4'></XMarkIcon>
+                </Button>
+              </div>
               <DialogTitle
                 as='h3'
                 className='text-base/7 font-medium text-black'
