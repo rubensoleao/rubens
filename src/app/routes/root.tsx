@@ -9,6 +9,12 @@ import MemoryForm from '../forms/memory-form'
 import UserEditForm from '../forms/user-edit-form'
 import { fetchMemories, fetchUser } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
+
+interface NavigationState {
+  isNewUser: boolean
+}
 
 export interface Memory {
   id: number
@@ -80,6 +86,12 @@ function MemoryCard(memory: MemoryCardProps) {
 }
 
 export default function Root() {
+  const [cookies, , removeCookie] = useCookies(['username'])
+
+  // Routes
+  const location = useLocation()
+  const navigate = useNavigate()
+
   const [memoriesList, setMemoriesList] = useState<Memory[] | undefined>(
     undefined
   )
@@ -121,6 +133,13 @@ export default function Root() {
     }
   }
 
+  const logout = () => {
+    removeCookie('username')
+    navigate('/login')
+  }
+
+  // Handler functions
+
   const handleScroll = (e: any) => {
     const scrollHeight = e.target.documentElement.scrollHeight
     const currentHeight =
@@ -135,40 +154,7 @@ export default function Root() {
     }
   }
 
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [handleScroll])
-
-  useEffect(() => {
-    if (memoriesList === undefined) {
-      getMemories(1)
-    }
-  }, [queryOrdering, getMemories, memoriesList])
-
-  useEffect(() => {
-    fetchUser()
-      .then((user) => {
-        if (user) {
-          setUserName(user.name)
-          setUserDescription(user.description)
-        } else {
-          setIsUserDialogOpen(true)
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-        setIsUserDialogOpen(true)
-      })
-  }, [])
-
-  // Create Memory Dialog
-  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] =
-    useState(false)
-
-  const selectFilter = (filter: string) => {
+  const handleOnSelectFilter = (filter: string) => {
     const ordering = filter === 'Older to newer' ? 'desc' : 'asc'
     setQueryOrdering(ordering)
     setMemoriesList(undefined)
@@ -182,8 +168,15 @@ export default function Root() {
   }
 
   const handleUserSubmit = () => {
-    setIsUserDialogOpen(false)
-    fetchUser()
+    const username = cookies.username as string | undefined
+    console.log("SUBMITED", username)
+    if (username === undefined) {
+      //User not logged in
+      navigate('/login')
+      return
+    }
+
+    fetchUser(username)
       .then((user) => {
         setUserName(user.name)
         setUserDescription(user.description)
@@ -191,6 +184,7 @@ export default function Root() {
       .catch((err) => {
         console.error(err)
       })
+      setIsUserDialogOpen(false)
   }
 
   const handleShare = () => {
@@ -206,9 +200,66 @@ export default function Root() {
     )
   }
 
+  // Hooks
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [handleScroll])
+
+  useEffect(() => {
+    if (memoriesList === undefined) {
+      getMemories(1)
+    }
+  }, [queryOrdering, getMemories, memoriesList])
+
+  useEffect(() => {
+    const username = cookies.username as string | undefined
+
+    if (!username) {
+      //User not logged in
+      navigate('/login')
+      return
+    }
+
+    fetchUser(username)
+      .then((user) => {
+        if (user) {
+          setUserName(user.name)
+          setUserDescription(user.description)
+        } else {
+          setIsUserDialogOpen(true)
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        // TODO: better handle this type of error
+        navigate('/login')
+        return
+      })
+    const isNewUser = location.state?.isNewUser as NavigationState | undefined
+    navigate(location.pathname, { replace: true });
+
+    if (isNewUser) {
+      setIsUserDialogOpen(true)
+      return
+    }
+  }, [])
+
+  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] =
+    useState(false)
+
   return (
     <div className='min-h-screen'>
       <div className='max-w-3xl mx-auto p-4 h-screen'>
+        <Button
+          className='border-none btn-primary absolute right-0 top-0 m-4  '
+          onClick={logout}
+        >
+          {' '}
+          Logout
+        </Button>
         <div className='flex items-center justify-center lg:fixed lg:top-4 lg:left-4 md:sticky md:top-0 md:z-10'>
           <CubeIcon className='h-6 w-6 text-black' />
           <p className='text-lg font-semibold text-gray-900 ml-2'>
@@ -245,7 +296,7 @@ export default function Root() {
           </Button>
           <DropdownMenu
             options={['Older to newer', 'Newer to older']}
-            onSelect={selectFilter}
+            onSelect={handleOnSelectFilter}
           />
         </div>
         <div>

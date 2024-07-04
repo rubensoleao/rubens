@@ -37,16 +37,14 @@ interface UploadImageResponse {
 }
 
 interface User {
+  username: string
   name: string
   description: string
 }
 
-interface GetUserResponse {
-  user: User
-}
 
 interface UpdateUserResponse {
-  message: string
+  user: User
 }
 
 // Axios instance
@@ -117,7 +115,7 @@ export const updateMemory = async (
   id: number,
   title: string,
   description: string,
-  date: string,
+  date: string
 ): Promise<UpdateMemoryResponse> => {
   const response = await apiClient.put<UpdateMemoryResponse>(
     `/memories/${id}`,
@@ -141,25 +139,38 @@ export const deleteMemory = async (
 }
 
 // GET /user
-export const fetchUser = async (): Promise<GetUserResponse['user']> => {
-  const response = await apiClient.get<GetUserResponse>('/user')
+export const fetchUser = async (
+  username: string
+): Promise<User> => {
+  const response = await apiClient.get<UpdateUserResponse>(`/user/${username}`)
   return response.data.user
 }
 
 // POST /user
 export const createUser = async (
+  username: string,
   name: string,
   description: string
-): Promise<UpdateUserResponse> => {
+): Promise<User> => {
   const response = await apiClient.post<UpdateUserResponse>('/user', {
+    username,
     name,
     description,
   })
-  return response.data
+  return response.data.user
+}
+
+export const getUser = async (username: string): Promise<User> => {
+  const response = await axios.get<UpdateUserResponse>(`/user/${username}`)
+  return response.data.user
 }
 
 // PUT /user
-export const updateUser = async (user: User): Promise<UpdateUserResponse> => {
-  const response = await apiClient.put<UpdateUserResponse>('/user', user)
-  return response.data
+export const updateUser = async (user:User): Promise<User> => {
+  console.log("sending")
+
+  const request = {'name':user.name,'description': user.description}
+  const response = await apiClient.put<UpdateUserResponse>(`/user/${user.username}`, request)
+  console.log(response)
+  return response.data.user
 }

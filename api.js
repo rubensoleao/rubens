@@ -19,6 +19,18 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const upload = multer({ dest: path.join(__dirname, 'uploads/') })
 
+// Add user table
+db.serialize(() => {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT, 
+      name TEXT,
+      description TEXT
+    )
+  `)
+})
+
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS memories (
@@ -26,7 +38,9 @@ db.serialize(() => {
       title TEXT,
       description TEXT,
       'date' TEXT,
-      imageUrl TEXT
+      imageUrl TEXT,
+      user_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES users(id)
     )
   `)
 })
@@ -151,32 +165,35 @@ app.delete('/memories/:id', (req, res) => {
   })
 })
 
-// Add user table
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS user (
-      id INTEGER PRIMARY KEY,
-      name TEXT,
-      description TEXT
-    )
-  `)
-})
 
 // USER
 // GET /user
-app.get('/user', (req, res) => {
-  db.get('SELECT * FROM user WHERE id = 1', (err, row) => {
+app.get('/user/:username', (req, res) => {
+  const { username } = req.params;
+
+  // Prepare the SQL statement
+  const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
+  
+  // Execute the prepared statement
+  stmt.get(username, (err, row) => {
     if (err) {
-      res.status(500).json({ error: err.message })
-      return
+      console.error(err.message); // It's often a good practice to log the error
+      res.status(500).json({ error: "Internal server error" });
+      return;
     }
-    res.json({ user: row })
-  })
-})
+    
+    if (!row) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.json({ user: row });
+  });
+});
 
 // POST /user
 app.post('/user', (req, res) => {
-  const { name, description } = req.body
+  const { username, name, description } = req.body
 
   if (!name || !description) {
     res.status(400).json({ error: 'Please provide both name and description' })
@@ -184,8 +201,8 @@ app.post('/user', (req, res) => {
   }
 
   db.run(
-    'INSERT INTO user (id, name, description) VALUES (1, ?, ?)',
-    [name, description],
+    'INSERT INTO users (username, name, description) VALUES (?, ?, ?)',
+    [username, name, description],
     (err) => {
       if (err) {
         res.status(500).json({ error: err.message })
@@ -197,23 +214,25 @@ app.post('/user', (req, res) => {
 })
 
 // PUT /user
-app.put('/user', (req, res) => {
+app.put('/user/:username', (req, res) => {
   const { name, description } = req.body
+  const { username } = req.params;
 
-  if (!name || !description) {
-    res.status(400).json({ error: 'Please provide both name and description' })
+
+  if (!username || !name || !description) {
+    res.status(400).json({ error: 'Invalid request' })
     return
   }
 
   db.run(
-    'UPDATE user SET name = ?, description = ? WHERE id = 1',
-    [name, description],
-    (err) => {
+    'UPDATE users SET name = ?, description = ? WHERE username = ?',
+    [name, description, username],
+    (err, row) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
       }
-      res.json({ message: 'User updated successfully' })
+      return res.json({user:row})
     }
   )
 })

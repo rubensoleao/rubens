@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Button, Field, Input, Label, Textarea } from '@headlessui/react'
 import clsx from 'clsx'
-import { createUser, fetchUser, updateUser } from '../lib/api-client'
+import { fetchUser, updateUser } from '../lib/api-client'
+import {  useNavigate } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
 
 interface UserEditFormProps {
   onSubmit: () => void
@@ -10,9 +12,23 @@ interface UserEditFormProps {
 export default function UserEditForm({ onSubmit }: UserEditFormProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [cookies] = useCookies(['username'])
+  const navigate = useNavigate()
+
+
+  const getUsername = ():string =>{
+    const username = cookies.username as undefined | string
+    if (username === undefined) {
+      console.warn('No session cookie found')
+      navigate('/login')
+      throw "No username found in cookie"
+    }
+    return username
+  }
 
   useEffect(() => {
-    fetchUser()
+    const username = getUsername()
+    fetchUser(username)
       .then((user) => {
         if (user) {
           setName(user.name)
@@ -26,31 +42,18 @@ export default function UserEditForm({ onSubmit }: UserEditFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const user = { name, description }
+    const username = getUsername()
+    const user = { username, name, description }
+    console.log("subsadasdasdasmited1", user)
 
-    fetchUser()
-      .then((existingUser) => {
-        if (existingUser) {
-          updateUser(user)
-            .then(() => {
-              onSubmit()
-            })
-            .catch((err) => {
-              console.error(err)
-            })
-        } else {
-          createUser(user.name, user.description)
-            .then(() => {
-              onSubmit()
-            })
-            .catch((err) => {
-              console.error(err)
-            })
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
+    updateUser(user)
+    .then(() => {
+      console.log("submited1")
+      onSubmit()
+    })
+    .catch((err) => {
+      console.error(err)
+    })
   }
 
   return (
