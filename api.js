@@ -45,15 +45,33 @@ db.serialize(() => {
   `)
 })
 
+// Endpoint to upload an image
+app.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ error: 'Please provide an image' })
+    return
+  }
+
+  const imageUrl = `/uploads/${req.file.filename}`
+  res.status(201).json({ imageUrl })
+})
+
+// Memories
 app.get('/memories', (req, res) => {
+  const username = req.query.username
   const page = parseInt(req.query.page) || 1
   const limit = parseInt(req.query.limit) || 10
-  const order = req.query.order === 'desc' ? 'DESC' : 'ASC'
+  const orderClause = req.query.order === 'desc' ? 'DESC' : 'ASC'
+
+  if (!username) {
+    return res.status(403).json({error: 'Need user token'})
+  }
 
   const offset = (page - 1) * limit
 
-  const totalCountQuery = `SELECT COUNT(*) AS count FROM memories`
-  const paginatedQuery = `SELECT * FROM memories ORDER BY date ${order} LIMIT ? OFFSET ?`
+  const totalCountQuery = `SELECT COUNT(*) AS count FROM memories INNER JOIN users ON memories.user_id = users.id WHERE users.username = ?`
+  const paginatedQuery = `SELECT memories.* FROM memories INNER JOIN users ON memories.user_id = users.id WHERE users.username = ? ORDER BY date ${orderClause} LIMIT ? OFFSET ?`
+
 
   db.get(totalCountQuery, (err, row) => {
     if (err) {
@@ -64,7 +82,7 @@ app.get('/memories', (req, res) => {
     const totalCount = row.count
     const totalPages = Math.ceil(totalCount / limit)
 
-    db.all(paginatedQuery, [limit, offset], (err, rows) => {
+    db.all(paginatedQuery, [username, limit, offset], (err, rows) => {
       if (err) {
         res.status(500).json({ error: err.message })
         return
@@ -81,37 +99,34 @@ app.get('/memories', (req, res) => {
   })
 })
 
-// Endpoint to upload an image
-app.post('/upload', upload.single('image'), (req, res) => {
-  if (!req.file) {
-    res.status(400).json({ error: 'Please provide an image' })
-    return
-  }
-
-  const imageUrl = `/uploads/${req.file.filename}`
-  res.status(201).json({ imageUrl })
-})
 
 app.post('/memories', (req, res) => {
-  const { title, description, date, imageUrl } = req.body
+  const {username, title, description, date, imageUrl } = req.body
 
-  if (!title || !description || !date || !imageUrl) {
-    res.status(400).json({
-      error:
-        'Please provide all fields: title, description, date, imageUrl',
+  if (!username || !title || !description || !date || !imageUrl) {
+    return res.status(400).json({
+      error: 'Please provide all fields: username, title, description, date, imageUrl',
     })
-    return
   }
 
-  const stmt = db.prepare(
-    'INSERT INTO memories (title, description, date, imageUrl) VALUES (?, ?, ?, ?)'
-  )
-  stmt.run(title, description, date, imageUrl, (err) => {
+  const userQuery = `SELECT id FROM users WHERE username = ?`
+  db.get(userQuery, [username], (err, user) => {
     if (err) {
-      res.status(500).json({ error: err.message })
-      return
+      return res.status(500).json({ error: err.message })
     }
-    res.status(201).json({ message: 'Memory created successfully' })
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const stmt = db.prepare(
+      'INSERT INTO memories (title, description, date, imageUrl, user_id) VALUES (?, ?, ?, ?, ?)'
+    )
+    stmt.run(title, description, date, imageUrl, user.id, (err) => {
+      if (err) {
+        return res.status(500).json({ error: err.message })
+      }
+      res.status(201).json({ message: 'Memory created successfully' })
+    })
   })
 })
 
@@ -132,7 +147,7 @@ app.get('/memories/:id', validateParamId, (req, res) => {
 
 app.put('/memories/:id', (req, res) => {
   const { id } = req.params
-  const { title, description, date, imageUrl } = req.body
+  const { title, description, date } = req.body
 
   if (!title || !description || !date ) {
     res.status(400).json({
@@ -168,8 +183,12 @@ app.delete('/memories/:id', (req, res) => {
 
 // USER
 // GET /user
-app.get('/user/:username', (req, res) => {
-  const { username } = req.params;
+app.get('/user', (req, res) => {
+  console.log("sauifsdiuoauio")
+  console.log(req.query)
+
+  const { username } = req.query
+  console.log(req.query)
 
   // Prepare the SQL statement
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
@@ -214,9 +233,10 @@ app.post('/user', (req, res) => {
 })
 
 // PUT /user
-app.put('/user/:username', (req, res) => {
+app.put('/user', (req, res) => {
   const { name, description } = req.body
-  const { username } = req.params;
+  const { username } = req.query
+  console.log(username)
 
 
   if (!username || !name || !description) {

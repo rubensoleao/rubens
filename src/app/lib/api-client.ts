@@ -1,5 +1,25 @@
 import axios, { AxiosInstance } from 'axios'
 
+const getCookie = (name:string) => {
+  const nameEQ = `${name}=`;
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    let c = cookies[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+};
+
+// Usage
+const getUsername = ()=>{
+  const username = getCookie('username');
+  if (!username){
+    throw Error("Username not found in cookie")
+  }
+  return username
+}
+
 interface Memory {
   id: number
   title: string
@@ -42,7 +62,6 @@ interface User {
   description: string
 }
 
-
 interface UpdateUserResponse {
   user: User
 }
@@ -82,8 +101,10 @@ export const fetchMemories = async (
   limit: number = 5,
   order: string = 'asc'
 ): Promise<GetMemoriesResponse> => {
+  const username = getUsername()
+
   const response = await apiClient.get<GetMemoriesResponse>('/memories', {
-    params: { page, limit, order },
+    params: { username, page, limit, order },
   })
   return response.data
 }
@@ -101,7 +122,10 @@ export const createMemory = async (
   date: string,
   imageUrl: string
 ): Promise<CreateMemoryResponse> => {
+  const username = getUsername()
+
   const response = await apiClient.post<CreateMemoryResponse>('/memories', {
+    username,
     title,
     description,
     date,
@@ -139,10 +163,15 @@ export const deleteMemory = async (
 }
 
 // GET /user
-export const fetchUser = async (
-  username: string
-): Promise<User> => {
-  const response = await apiClient.get<UpdateUserResponse>(`/user/${username}`)
+export const fetchUser = async (username:string): Promise<User> => {
+  let requestUsername = username
+  if (!username) {
+    const cookieUsername = getUsername()
+    requestUsername = cookieUsername
+  }
+  const response = await apiClient.get<UpdateUserResponse>('/user', {
+    params: { username:requestUsername },
+  })
   return response.data.user
 }
 
@@ -160,17 +189,17 @@ export const createUser = async (
   return response.data.user
 }
 
-export const getUser = async (username: string): Promise<User> => {
-  const response = await axios.get<UpdateUserResponse>(`/user/${username}`)
-  return response.data.user
-}
-
 // PUT /user
-export const updateUser = async (user:User): Promise<User> => {
-  console.log("sending")
-
-  const request = {'name':user.name,'description': user.description}
-  const response = await apiClient.put<UpdateUserResponse>(`/user/${user.username}`, request)
-  console.log(response)
+export const updateUser = async (user: User): Promise<User> => {
+  const response = await apiClient.put<UpdateUserResponse>(
+    `/user`,
+    {
+      name: user.name,
+      description: user.description,
+    },
+    {
+      params: { username: user.username }
+    }
+  )
   return response.data.user
 }
