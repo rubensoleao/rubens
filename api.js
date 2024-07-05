@@ -73,7 +73,7 @@ app.get('/memories', (req, res) => {
   const paginatedQuery = `SELECT memories.* FROM memories INNER JOIN users ON memories.user_id = users.id WHERE users.username = ? ORDER BY date ${orderClause} LIMIT ? OFFSET ?`
 
 
-  db.get(totalCountQuery, (err, row) => {
+  db.get(totalCountQuery,username,  (err, row) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
