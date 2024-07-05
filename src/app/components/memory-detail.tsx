@@ -36,13 +36,15 @@ export default function MemoryDetailDialog({
     }
   };
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   return (
     <>
       <CustomDialog isOpen={isOpen} title='' onClose={onClose}>
         <div className='flex space-x-4 mr-6 h-auto'>
           <div className='w-1/3'>
             <img
-              src={'http://127.0.0.1:4001' + memory.imageUrl}
+              src={apiUrl + memory.imageUrl}
               alt='Memory'
               className='w-full h-auto object-cover'
             />

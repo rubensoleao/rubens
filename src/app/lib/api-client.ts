@@ -68,7 +68,7 @@ interface UpdateUserResponse {
 
 // Axios instance
 const apiClient: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:4001',
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: false,
   headers: {
     'Content-Type': 'application/json',
