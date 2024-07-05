@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import InputMask from 'react-input-mask'
 import FileUploadInput from '../components/file-upload-input'
 import { createMemory, updateMemory, uploadImage } from '../lib/api-client'
-import { Memory } from '../routes/root'
+import { Memory } from '../../types'
 
 interface MemoryFormProps {
   defaultValue?: Memory
