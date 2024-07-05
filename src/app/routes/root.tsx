@@ -34,6 +34,7 @@ interface MemoryCardProps {
 function MemoryCard(memory: MemoryCardProps) {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   return (
     <div>
@@ -59,7 +60,7 @@ function MemoryCard(memory: MemoryCardProps) {
             )}
           >
             <img
-              src={'http://127.0.0.1:4001' + memory.imageUrl}
+              src={apiUrl + memory.imageUrl}
               alt='Memory'
               className='h-full w-full object-cover'
             />
@@ -169,7 +170,6 @@ export default function Root() {
 
   const handleUserSubmit = () => {
     const username = cookies.username as string | undefined
-    console.log("SUBMITED", username)
     if (username === undefined) {
       //User not logged in
       navigate('/login')

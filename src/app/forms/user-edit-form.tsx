@@ -44,11 +44,9 @@ export default function UserEditForm({ onSubmit }: UserEditFormProps) {
     e.preventDefault()
     const username = getUsername()
     const user = { username, name, description }
-    console.log("subsadasdasdasmited1", user)
 
     updateUser(user)
     .then(() => {
-      console.log("submited1")
       onSubmit()
     })
     .catch((err) => {

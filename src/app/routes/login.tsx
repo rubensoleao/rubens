@@ -15,12 +15,10 @@ const LoginScreen: React.FC = () => {
   const handleFormSubmit = (event: any) => {
     event.preventDefault()
     const formType = event?.nativeEvent?.submitter?.name
-    console.log(formType)
 
     if (formType === 'login') {
       handleLogin()
     } else if (formType === 'createuser') {
-        console.log('createuser')
       handleCreateUser()
     }
   }

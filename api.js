@@ -184,11 +184,7 @@ app.delete('/memories/:id', (req, res) => {
 // USER
 // GET /user
 app.get('/user', (req, res) => {
-  console.log("sauifsdiuoauio")
-  console.log(req.query)
-
   const { username } = req.query
-  console.log(req.query)
 
   // Prepare the SQL statement
   const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
@@ -236,7 +232,6 @@ app.post('/user', (req, res) => {
 app.put('/user', (req, res) => {
   const { name, description } = req.body
   const { username } = req.query
-  console.log(username)
 
 
   if (!username || !name || !description) {
