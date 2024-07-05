@@ -92,12 +92,17 @@ export const uploadImage = async (
 export const fetchMemories = async (
   page: number = 1,
   limit: number = 5,
-  order: string = 'asc'
+  order: string = 'asc',
+  username: string | undefined = undefined
 ): Promise<GetMemoriesResponse> => {
-  const username = getUsername()
+  let requestUsername = username
+  if (!requestUsername) {
+    requestUsername= getUsername()
+  }
+  console.log(requestUsername, "REQUESTED")
 
   const response = await apiClient.get<GetMemoriesResponse>('/memories', {
-    params: { username, page, limit, order },
+    params: { 'username':requestUsername, page, limit, order },
   })
   return response.data
 }

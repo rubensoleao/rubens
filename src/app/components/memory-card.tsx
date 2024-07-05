@@ -55,7 +55,7 @@ export function MemoryCard(memory: MemoryCardProps) {
             </div>
           </Transition>
         </div>
-        <MemoryDetailDialog
+        <MemoryDetailDialog  // TODO: optimize MemoryDetailDialog (put in parent component) to avoid multple dialogs
           memory={memory}
           isOpen={isDetailDialogOpen}
           onClose={() => {
