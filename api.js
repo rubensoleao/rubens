@@ -70,10 +70,15 @@ app.get('/memories', (req, res) => {
   const offset = (page - 1) * limit
 
   const totalCountQuery = `SELECT COUNT(*) AS count FROM memories INNER JOIN users ON memories.user_id = users.id WHERE users.username = ?`
-  const paginatedQuery = `SELECT memories.* FROM memories INNER JOIN users ON memories.user_id = users.id WHERE users.username = ? ORDER BY date ${orderClause} LIMIT ? OFFSET ?`
+  const paginatedQuery = `
+    SELECT memories.* 
+    FROM memories 
+    INNER JOIN users ON memories.user_id = users.id 
+    WHERE users.username = ? 
+    ORDER BY strftime('%Y-%m-%d', substr(date, 7, 4) || '-' || substr(date, 1, 2) || '-' || substr(date, 4, 2)) ${orderClause} 
+    LIMIT ? OFFSET ?`
 
-
-  db.get(totalCountQuery,username,  (err, row) => {
+  db.get(totalCountQuery, username, (err, row) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
@@ -98,6 +103,7 @@ app.get('/memories', (req, res) => {
     })
   })
 })
+
 
 
 app.post('/memories', (req, res) => {
