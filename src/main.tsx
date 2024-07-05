@@ -1,12 +1,13 @@
-import ReactDOM from 'react-dom/client'
-import Root from './app/routes/root.tsx'
-import LoginScreen from './app/routes/login.tsx'
 import { CookiesProvider } from 'react-cookie'
+import ReactDOM from 'react-dom/client'
+import LoginScreen from './app/routes/login.tsx'
+import Root from './app/routes/root.tsx'
 
-import './main.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import NotFound from './app/routes/not-found.tsx'
 import ShareMemoryScreen from './app/routes/share-memories.tsx'
+import './main.css'
+import MemoryTimelineLayout from './app/layouts/memory-timeline.tsx'
 
 const router = createBrowserRouter([
   {
@@ -15,11 +16,17 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <Root />,
-  },
-  {
-    path: '/share/:username',
-    element: <ShareMemoryScreen />,
+    element: <MemoryTimelineLayout />,
+    children: [
+      {
+        index: true,
+        element: <Root />,
+      },
+      {
+        path: 'share/:username',
+        element: <ShareMemoryScreen />,
+      },
+    ],
   },
   {
     path: '*',

@@ -1,5 +1,5 @@
 import { Button } from '@headlessui/react'
-import { CubeIcon, PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
+import { PencilIcon, ShareIcon } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -44,7 +44,11 @@ export default function Root() {
   }
 
   const handleShare = () => {
-    const fakeLink = `https://memorylane.com/share/${userName}`
+    const username = cookies.username as string | undefined
+    if (!username){
+      setToastMessage('Error generating link')
+    }
+    const fakeLink = `http://memory-lane.leao.dev.br/share/${username}`
     navigator.clipboard.writeText(fakeLink).then(
       () => {
         setToastMessage('Link copied to clipboard! ')
@@ -75,7 +79,6 @@ export default function Root() {
       })
       .catch((err) => {
         console.error(err)
-        // TODO: better handle this type of error
         navigate('/login')
         return
       })
@@ -84,30 +87,32 @@ export default function Root() {
     navigate(location.pathname, { replace: true })
 
     if (isNewUser) {
-      setIsNewUser('Welcome aboard! Create your profile by filling in the details below.')
+      setIsNewUser(
+        'Welcome aboard! Create your profile by filling in the details below.'
+      )
       setIsUserDialogOpen(true)
       return
     }
   }, [])
 
   return (
-    <div className='min-h-screen'>
-      <div className='max-w-3xl mx-auto p-4 h-screen'>
-        <Button className='border-none btn-primary absolute right-0 top-0 m-4' onClick={logout}>
-          Logout
-        </Button>
-        <div className='flex items-center justify-center lg:fixed lg:top-4 lg:left-4 md:sticky md:top-0 md:z-10'>
-          <CubeIcon className='h-6 w-6 text-black' />
-          <p className='text-lg font-semibold text-gray-900 ml-2'>
-            Memory Lane
-          </p>
-        </div>
+    <>
+      <Button
+        className='border-none btn-primary absolute right-0 top-0 m-4'
+        onClick={logout}
+      >
+        Logout
+      </Button>
+      <div className='break-words '>
         <div className='flex items-center justify-between pt-2 mb-4'>
           <h1 className='text-2xl font-semibold text-gray-900'>
             {userName ? `${userName}'s Memory Lane` : 'Memory Lane'}
           </h1>
           <div>
-            <Button className='btn-primary mt-4 mr-2 text-gray-600' onClick={() => setIsUserDialogOpen(true)}>
+            <Button
+              className='btn-primary mt-4 mr-2 text-gray-600'
+              onClick={() => setIsUserDialogOpen(true)}
+            >
               <PencilIcon className='w-4 h-4' />
             </Button>
             <Button className='btn-primary' onClick={handleShare}>
@@ -115,14 +120,12 @@ export default function Root() {
             </Button>
           </div>
         </div>
-        <div className='break-words'>
-          <p className='text-gray-700 mb-8'>
+        <p className='text-gray-700 mb-8'>
             {userDescription || 'User description goes here.'}
           </p>
-        </div>
-        <MemoryTimeline
-          isEditable={true}
-        />
+
+
+        <MemoryTimeline isEditable={true} />
       </div>
       <CustomDialog
         isOpen={isUserDialogOpen}
@@ -136,6 +139,6 @@ export default function Root() {
         show={isToastVisible}
         onClose={() => setIsToastVisible(false)}
       />
-    </div>
+    </>
   )
 }
