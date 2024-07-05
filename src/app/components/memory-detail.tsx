@@ -75,7 +75,7 @@ export default function MemoryDetailDialog({
             <div className='relative text-gray-600'>
               <Button
                 className='btn-secondary absolute bottom-1 right-1 float-right'
-                onClick={() => handleEditMemory}
+                onClick={handleEditMemory}
               >
                 <PencilIcon className='w-4 h-4' />
               </Button>
