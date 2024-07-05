@@ -34,7 +34,7 @@ interface MemoryCardProps {
 function MemoryCard(memory: MemoryCardProps) {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL
 
   return (
     <div>
@@ -105,6 +105,9 @@ export default function Root() {
   const [isUserDialogOpen, setIsUserDialogOpen] = useState<boolean>(false)
   const [isToastVisible, setIsToastVisible] = useState<boolean>(false)
   const [toastMessage, setToastMessage] = useState<string>('')
+  const [isNewUser, setisNewUser] = useState<string>(
+    'Update Your Profile'
+  )
 
   const getMemories = useCallback(
     (page: number) => {
@@ -184,7 +187,7 @@ export default function Root() {
       .catch((err) => {
         console.error(err)
       })
-      setIsUserDialogOpen(false)
+    setIsUserDialogOpen(false)
   }
 
   const handleShare = () => {
@@ -239,9 +242,10 @@ export default function Root() {
         return
       })
     const isNewUser = location.state?.isNewUser as NavigationState | undefined
-    navigate(location.pathname, { replace: true });
+    navigate(location.pathname, { replace: true })
 
     if (isNewUser) {
+      setisNewUser('Welcome aboard! Create your profile by filling in the details below.')
       setIsUserDialogOpen(true)
       return
     }
@@ -334,7 +338,7 @@ export default function Root() {
       </CustomDialog>
       <CustomDialog
         isOpen={isUserDialogOpen}
-        title={'Profile'}
+        title={isNewUser}
         onClose={() => setIsUserDialogOpen(false)}
       >
         <UserEditForm onSubmit={handleUserSubmit} />
