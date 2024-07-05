@@ -10,17 +10,7 @@ import MemoryForm from '../forms/memory-form'
 import UserEditForm from '../forms/user-edit-form'
 import { fetchMemories, fetchUser } from '../lib/api-client'
 import DropdownMenu from './../components/dropdown-menu'
-interface NavigationState {
-  isNewUser: boolean
-}
-
-export interface Memory {
-  id: number
-  title: string
-  date: string
-  description: string
-  imageUrl: string
-}
+import { Memory } from '../../types'
 
 
 export default function Root() {
@@ -178,7 +168,7 @@ export default function Root() {
         navigate('/login')
         return
       })
-    const isNewUser = location.state?.isNewUser as NavigationState | undefined
+    const isNewUser = location.state?.isNewUser as boolean | undefined
     navigate(location.pathname, { replace: true })
 
     if (isNewUser) {

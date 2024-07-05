@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
+import { Memory } from '../../types';
 
 const getCookie = (name:string) => {
   const nameEQ = `${name}=`;
@@ -18,14 +19,6 @@ const getUsername = ()=>{
     throw Error("Username not found in cookie")
   }
   return username
-}
-
-interface Memory {
-  id: number
-  title: string
-  description: string
-  date: string
-  imageUrl: string
 }
 
 interface GetMemoriesResponse {
