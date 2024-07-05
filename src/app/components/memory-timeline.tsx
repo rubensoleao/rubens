@@ -8,39 +8,57 @@ import { fetchMemories } from '../lib/api-client'
 import { Memory } from '../../types'
 
 interface MemoryTimelineProps {
-username: string | undefined
-  showCreateButton: boolean
+  isEditable: boolean
+  username?: string
 }
 
-const MemoryTimeline = ({ username,  showCreateButton }: MemoryTimelineProps) => {
-  const [memoriesList, setMemoriesList] = useState<Memory[] | undefined>(undefined)
+const MemoryTimeline = ({
+  isEditable,
+  username = undefined,
+
+}: MemoryTimelineProps) => {
+  const [memoriesList, setMemoriesList] = useState<Memory[] | undefined>(
+    undefined
+  )
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isLoadingPage, setIsLoadingPage] = useState<boolean>(true)
   const [maxNumPages, setMaxNumPages] = useState<number>(10)
   const [queryOrdering, setQueryOrdering] = useState<string>('asc')
-  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] = useState<boolean>(false)
+  const [createMemoryDialogIsOpen, setCreateMemoryDialogIsOpen] =
+    useState<boolean>(false)
 
-  const getMemories = useCallback((page: number) => {
-    setIsLoadingPage(true)
-    fetchMemories(page, 5, queryOrdering, username)
-      .then(({ memories, page, totalPages }) => {
-        const newMemories = memoriesList ? [...memoriesList, ...memories] : memories
-        setMemoriesList(newMemories)
-        setCurrentPage(page)
-        setMaxNumPages(totalPages)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => {
-        setIsLoadingPage(false)
-      })
-  }, [queryOrdering, memoriesList])
+  const getMemories = useCallback(
+    (page: number) => {
+      setIsLoadingPage(true)
+      fetchMemories(page, 5, queryOrdering, username)
+        .then(({ memories, page, totalPages }) => {
+          const newMemories = memoriesList
+            ? [...memoriesList, ...memories]
+            : memories
+          setMemoriesList(newMemories)
+          setCurrentPage(page)
+          setMaxNumPages(totalPages)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+        .finally(() => {
+          setIsLoadingPage(false)
+        })
+    },
+    [queryOrdering, memoriesList]
+  )
 
   const handleScroll = (e: any) => {
     const scrollHeight = e.target.documentElement.scrollHeight
-    const currentHeight = e.target.documentElement.scrollTop + window.innerHeight
-    if (currentHeight + 20 >= scrollHeight && !isLoadingPage && memoriesList && currentPage < maxNumPages) {
+    const currentHeight =
+      e.target.documentElement.scrollTop + window.innerHeight
+    if (
+      currentHeight + 20 >= scrollHeight &&
+      !isLoadingPage &&
+      memoriesList &&
+      currentPage < maxNumPages
+    ) {
       getMemories(currentPage + 1)
     }
   }
@@ -74,12 +92,18 @@ const MemoryTimeline = ({ username,  showCreateButton }: MemoryTimelineProps) =>
   return (
     <div>
       <div className='flex justify-between items-center mb-4'>
-        {showCreateButton && (
-          <Button className='btn-primary' onClick={() => setCreateMemoryDialogIsOpen(true)}>
+        {isEditable && (
+          <Button
+            className='btn-primary'
+            onClick={() => setCreateMemoryDialogIsOpen(true)}
+          >
             + New memory
           </Button>
         )}
-        <DropdownMenu options={['Older to newer', 'Newer to older']} onSelect={handleOnSelectFilter} />
+        <DropdownMenu
+          options={['Older to newer', 'Newer to older']}
+          onSelect={handleOnSelectFilter}
+        />
       </div>
       <div>
         {memoriesList?.map((memory) => (
@@ -90,6 +114,7 @@ const MemoryTimeline = ({ username,  showCreateButton }: MemoryTimelineProps) =>
             date={memory.date}
             description={memory.description}
             imageUrl={memory.imageUrl}
+            isEditable={isEditable}
           />
         ))}
       </div>
@@ -110,7 +135,6 @@ const MemoryTimeline = ({ username,  showCreateButton }: MemoryTimelineProps) =>
       >
         <MemoryForm onSubmit={handleMemorySubmit} />
       </CustomDialog>
-
     </div>
   )
 }

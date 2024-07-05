@@ -9,7 +9,8 @@ interface MemoryCardProps {
     title: string
     date: string
     description: string
-    imageUrl: string
+    imageUrl: string,
+    isEditable:boolean
   }
 export function MemoryCard(memory: MemoryCardProps) {
     const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
@@ -61,6 +62,7 @@ export function MemoryCard(memory: MemoryCardProps) {
           onClose={() => {
             setIsDetailDialogOpen(false)
           }}
+          isEditable={memory.isEditable}
         />
       </div>
     )

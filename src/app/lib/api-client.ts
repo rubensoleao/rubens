@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { Memory } from '../../types';
+import { Memory, User } from '../../types';
 
 const getCookie = (name:string) => {
   const nameEQ = `${name}=`;
@@ -49,11 +49,6 @@ interface UploadImageResponse {
   imageUrl: string
 }
 
-interface User {
-  username: string
-  name: string
-  description: string
-}
 
 interface UpdateUserResponse {
   user: User

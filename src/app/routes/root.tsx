@@ -121,7 +121,7 @@ export default function Root() {
           </p>
         </div>
         <MemoryTimeline
-          showCreateButton={true}
+          isEditable={true}
         />
       </div>
       <CustomDialog

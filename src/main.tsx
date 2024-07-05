@@ -6,6 +6,7 @@ import { CookiesProvider } from 'react-cookie'
 import './main.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import NotFound from './app/routes/not-found.tsx'
+import ShareMemoryScreen from './app/routes/share-memories.tsx'
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,
+  },
+  {
+    path: '/share/:username',
+    element: <ShareMemoryScreen />,
   },
   {
     path: '*',
