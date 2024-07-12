@@ -13,7 +13,7 @@ const MemoryTimelineLayout: React.FC = () => {
           </p>
         </div>
         <div className='flex flex-col bg-blue items-center justify-center pt-2 mb-4 '>
-          <div className=' md:min-w-[800px]'>
+          <div className=' md:w-[800px]'>
             <Outlet />
           </div>
         </div>
