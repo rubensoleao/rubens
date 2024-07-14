@@ -26,3 +26,22 @@ As a first iteration for this solution, we want to build a web application that 
 ### Inspiration mockup
 
 ![Memory lane mockup](./memory_lane.png)
+
+## Summary of Changes
+
+- Integrated React Router for navigation.
+- Implemented UI components with tailwind and HeadlessUI:
+    - Dropdown Menu
+    - Dialog 
+    - File Upload
+    - Toast
+- Added Axios API client.
+- Added Infinite Scrolling to  Timeline.
+- Enabled creation, deletion, detail, and editing of memories.
+- Added CORS support.
+- Added user registration and editing for a single user.
+- Added file upload and sharing endpoints. 
+- Implemented ordering/filtering of memories by date
+- Memory Sharing by url link
+
+For more details, visit the [PR on GitHub](https://github.com/rubensoleao/rubens/pull/1/files).
